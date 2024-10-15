@@ -70,7 +70,7 @@ int main()
 {
     // Exemplu de request POST cu corp JSON
     std::map<std::string, std::string> headers = {
-        {"Host", "localhost"},
+        {"Host", "example.com"},
         {"Content-Type", "application/json"},
         {"Content-Length", "27"}};
 

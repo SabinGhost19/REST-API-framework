@@ -15,9 +15,10 @@ void handleClient(int client_socket)
               << buffer << std::endl;
 
     // Răspuns HTTP simplu
+
     std::string response = "HTTP/1.1 200 OK\r\n"
                            "Content-Type: text/plain\r\n"
-                           "Content-Length: 19\r\n"
+                           "Content-Length: 21\r\n"
                            "Connection: close\r\n\r\n"
                            "GET request received.";
 

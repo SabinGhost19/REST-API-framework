@@ -3,6 +3,9 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
+#include "json.hpp"
+
+using json = nlohmann::json;
 
 class W_FrREST
 {
@@ -15,8 +18,20 @@ private:
     void BuildSocket();
     void Serv_addr_Init(int PORT);
     void Connect_Sck_to_Srvr(const char *ip_addr);
+    std::string Sent(const std::string &request);
 
 public:
     W_FrREST(int PORT, const char *ip_addr);
-    std::string Sent(const std::string &request);
+
+    std::string get(const std::string &uri, const std::string &request);
+    std::string post(const std::string &uri, const std::string &request);
+    std::string put(const std::string &uri, const std::string &request);
+    std::string patch(const std::string &uri, const std::string &request);
+    std::string _delete(const std::string &uri, const std::string &request);
+
+    std::string get(const std::string &uri, const json &request);
+    std::string post(const std::string &uri, const json &request);
+    std::string put(const std::string &uri, const json &request);
+    std::string patch(const std::string &uri, const json &request);
+    std::string _delete(const std::string &uri, const json &request);
 };

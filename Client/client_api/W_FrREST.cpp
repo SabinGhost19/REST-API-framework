@@ -40,6 +40,7 @@ void W_FrREST::Connect_Sck_to_Srvr(const char *ip_addr)
         // return -1;
     }
 }
+
 std::string W_FrREST::Sent(const std::string &request)
 {
     // trimitem requestul
@@ -54,4 +55,127 @@ std::string W_FrREST::Sent(const std::string &request)
     close(this->_socket);
 
     return buffer;
+}
+
+json stringToJson(const std::string &jsonString)
+{
+    try
+    {
+        // Parsează string-ul în JSON
+        json jsonObj = json::parse(jsonString);
+        return jsonObj;
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Eroare la parsarea JSON-ului: " << e.what() << std::endl;
+        return nullptr;
+    }
+}
+
+// Funcția care transformă JSON în string
+std::string jsonToString(const json &jsonObj)
+{
+    try
+    {
+        // Serializarea obiectului JSON într-un string
+        return jsonObj.dump();
+    }
+    catch (const std::exception &e)
+    {
+        std::cerr << "Eroare la serializarea JSON-ului: " << e.what() << std::endl;
+        return "";
+    }
+}
+
+// Funcția care construiește un request HTTP
+std::string createHttpRequest(const std::string &method, const std::string &uri, const std::string &http_version,
+                              const std::map<std::string, std::string> &headers, const json &jsonBody = {})
+{
+    std::ostringstream request;
+
+    // 1. Linia de start: METHOD URI HTTP_VERSION
+    request << method << " " << uri << " " << http_version << "\r\n";
+
+    // 2. Headerele
+    for (const auto &header : headers)
+    {
+        request << header.first << ": " << header.second << "\r\n";
+    }
+
+    // 3. Linia goală care indică sfârșitul headerelor
+    request << "\r\n";
+
+    // 4. Corpul (dacă există)
+    if (!jsonBody.empty())
+    {
+        std::string body = jsonToString(jsonBody);
+        request << body;
+    }
+
+    return request.str();
+}
+
+std::string W_FrREST::get(const std::string &uri, const json &request = json::object())
+{
+    std::map<std::string, std::string> headers = {
+        {"Host", "catfact.ninja"},
+        {"Content-Type", "application/json"},
+        {"Content-Length", "0"}};
+
+    std::string httpRequest = createHttpRequest("GET", uri, "HTTP/1.1", headers, request);
+    std::string response = this->Sent(httpRequest);
+
+    return response;
+}
+
+std::string W_FrREST::post(const std::string &uri, const json &request)
+{
+    std::map<std::string, std::string> headers = {
+        {"Host", "localhost"},
+        {"Content-Type", "application/json"},
+        {"Content-Length", "27"}};
+
+    std::string httpRequest = createHttpRequest("POST", uri, "HTTP/1.1", headers, request);
+    std::string response = this->Sent(httpRequest);
+
+    return response;
+}
+
+std::string W_FrREST::put(const std::string &uri, const json &request)
+{
+    std::map<std::string, std::string> headers = {
+        {"Host", "localhost"},
+        {"Content-Type", "application/json"},
+        {"Content-Length", "27"}};
+
+    std::string httpRequest = createHttpRequest("PUT", uri, "HTTP/1.1", headers, request);
+    std::string response = this->Sent(httpRequest);
+
+    return response;
+}
+
+std::string W_FrREST::patch(const std::string &uri, const json &request)
+{
+    std::map<std::string, std::string> headers = {
+        {"Host", "localhost"},
+        {"Content-Type", "application/json"},
+        {"Content-Length", "27"}};
+
+    std::string httpRequest = createHttpRequest("PATCH", uri, "HTTP/1.1", headers, request);
+    std::string response = this->Sent(httpRequest);
+
+    return response;
+}
+
+std::string W_FrREST::_delete(const std::string &uri, const json &request)
+{
+    std::map<std::string, std::string> headers = {
+        {"Host", "localhost"},
+        {"Content-Type", "application/json"},
+        {"Content-Length", "27"}};
+
+    std::string httpRequest = createHttpRequest("DELETE", uri, "HTTP/1.1", headers, request);
+    std::string response = this->Sent(httpRequest);
+
+    return response;
 }
