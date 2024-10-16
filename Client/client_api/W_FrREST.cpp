@@ -3,37 +3,61 @@
 W_FrREST::W_FrREST(int PORT, const char *ip_addr)
 {
 
-    this->BuildSocket();
-    this->Serv_addr_Init(PORT);
-    this->Connect_Sck_to_Srvr(ip_addr);
+    struct addrinfo hints, *res;
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_INET; // sau AF_INET6 pentru IPv6
+    hints.ai_socktype = SOCK_STREAM;
+
+    if (getaddrinfo("httpbin.org", "80", &hints, &res) != 0)
+    {
+        perror("getaddrinfo");
+        return; // sau gestionează eroarea
+    }
+
+    this->BuildSocket(res);
+    this->Serv_addr_Init(res);
+    this->Connect_Sck_to_Srvr(res);
+
+    freeaddrinfo(res);
 }
-void W_FrREST::BuildSocket()
+void W_FrREST::BuildSocket(const addrinfo *res)
 {
 
-    if ((this->_socket = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+    if ((this->_socket = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0)
     {
         std::cerr << "Socket creation error\n";
         // throw(Error);
     }
 }
 
-void W_FrREST::Serv_addr_Init(int PORT)
+void W_FrREST::Serv_addr_Init(const addrinfo *res)
 {
-    // initializarea adresei serverului
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(PORT);
+    // // initializarea adresei serverului
+    // serv_addr.sin_family = AF_INET;
+    // serv_addr.sin_port = htons(PORT);
+
+    // Copiem informațiile de la res în serv_addr
+    serv_addr = *(struct sockaddr_in *)res->ai_addr;
+    serv_addr.sin_family = res->ai_family; // Setăm familia de adrese
 }
 
-void W_FrREST::Connect_Sck_to_Srvr(const char *ip_addr)
+void W_FrREST::Connect_Sck_to_Srvr(const addrinfo *res)
 {
 
-    if (inet_pton(AF_INET, ip_addr, &serv_addr.sin_addr) <= 0)
-    {
-        std::cerr << "Invalid address / Address not supported\n";
-        // return -1;
-    }
+    // if (inet_pton(AF_INET, &serv_addr.sin_family, &serv_addr.sin_addr) <= 0)
+    // {
+    //     std::cerr << "Invalid address / Address not supported\n";
+    //     // return -1;
+    // }
 
     // Conectam socketul la serverul de pe localhost
+    // if (connect(this->_socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+    // {
+    //     std::cerr << "Connection failed\n";
+    //     // return -1;
+    // }
+
+    // Conectăm socketul la server
     if (connect(this->_socket, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
     {
         std::cerr << "Connection failed\n";
@@ -45,7 +69,9 @@ std::string W_FrREST::Sent(const std::string &request)
 {
     // trimitem requestul
     send(this->_socket, request.c_str(), request.length(), 0);
-    std::cout << "HTTP request sent\n";
+    std::cout << "HTTP request sent\n"
+              << std::endl;
+    std::cout << "Request SENT: " << request << std::endl;
 
     buffer[1024] = {0};
 
@@ -118,7 +144,7 @@ std::string createHttpRequest(const std::string &method, const std::string &uri,
 std::string W_FrREST::get(const std::string &uri, const json &request = json::object())
 {
     std::map<std::string, std::string> headers = {
-        {"Host", "catfact.ninja"},
+        {"Host", "httpbin.org"},
         {"Content-Type", "application/json"},
         {"Content-Length", "0"}};
 
