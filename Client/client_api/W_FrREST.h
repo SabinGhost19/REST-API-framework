@@ -14,11 +14,12 @@ class W_FrREST
 
 private:
     int _socket = 0;
+    const char *ip_addr = "";
     struct sockaddr_in serv_addr;
     char buffer[1024] = {0};
 
     void BuildSocket(const addrinfo *res);
-    void Serv_addr_Init(const addrinfo*res);
+    void Serv_addr_Init(const addrinfo *res);
     void Connect_Sck_to_Srvr(const addrinfo *res);
     std::string Sent(const std::string &request);
 

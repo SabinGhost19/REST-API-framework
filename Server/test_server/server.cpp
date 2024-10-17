@@ -9,12 +9,10 @@
 void handleClient(int client_socket)
 {
     char buffer[1024] = {0};
-    // Citim cererea trimisă de client
+    // citire request
     read(client_socket, buffer, 1024);
     std::cout << "Request received:\n"
               << buffer << std::endl;
-
-    // Răspuns HTTP simplu
 
     std::string response = "HTTP/1.1 200 OK\r\n"
                            "Content-Type: text/plain\r\n"
@@ -22,10 +20,9 @@ void handleClient(int client_socket)
                            "Connection: close\r\n\r\n"
                            "GET request received.";
 
-    // Trimitem răspunsul înapoi către client
+    // send response
     send(client_socket, response.c_str(), response.size(), 0);
 
-    // Închidem conexiunea cu clientul după ce am trimis răspunsul
     close(client_socket);
 }
 
@@ -35,7 +32,7 @@ int main()
     struct sockaddr_in address;
     int addrlen = sizeof(address);
 
-    // Creăm socketul pentru server
+    // server socket
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0)
     {
         std::cerr << "Socket creation failed\n";
@@ -55,14 +52,14 @@ int main()
     address.sin_addr.s_addr = INADDR_ANY;
     address.sin_port = htons(PORT);
 
-    // Legăm socketul la portul specificat
+    // bind socket la port/adresa construita
     if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
     {
         std::cerr << "Bind failed\n";
         exit(EXIT_FAILURE);
     }
 
-    // Ascultăm pentru conexiuni
+    // ascultam
     if (listen(server_fd, 3) < 0)
     {
         std::cerr << "Listen failed\n";
@@ -80,7 +77,7 @@ int main()
             exit(EXIT_FAILURE);
         }
 
-        // Gestionăm cererea clientului
+        // gestionare cerere/request
         handleClient(client_socket);
     }
 

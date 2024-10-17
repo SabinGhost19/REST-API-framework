@@ -3,12 +3,13 @@
 W_FrREST::W_FrREST(int PORT, const char *ip_addr)
 {
 
+    this->ip_addr = ip_addr;
+
     struct addrinfo hints, *res;
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_INET; // sau AF_INET6 pentru IPv6
     hints.ai_socktype = SOCK_STREAM;
-
-    if (getaddrinfo("httpbin.org", "80", &hints, &res) != 0)
+    if (getaddrinfo(ip_addr, "80", &hints, &res) != 0)
     {
         perror("getaddrinfo");
         return; // sau gestionează eroarea
@@ -144,7 +145,7 @@ std::string createHttpRequest(const std::string &method, const std::string &uri,
 std::string W_FrREST::get(const std::string &uri, const json &request = json::object())
 {
     std::map<std::string, std::string> headers = {
-        {"Host", "httpbin.org"},
+        {"Host", this->ip_addr},
         {"Content-Type", "application/json"},
         {"Content-Length", "0"}};
 
