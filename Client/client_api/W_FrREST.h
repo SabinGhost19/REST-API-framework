@@ -6,6 +6,7 @@
 #include "json.hpp"
 #include <sys/types.h>
 #include <netdb.h>
+#include <sstream>
 
 using json = nlohmann::json;
 

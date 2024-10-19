@@ -1,7 +1,7 @@
 # Definirea variabilelor
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra
-SOURCES = main.cpp HTTP_Server.cpp Request.cpp Response.cpp Router.cpp
+SOURCES = main.cpp HTTPServer.cpp Request.cpp Response.cpp Router.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 TARGET = main
 

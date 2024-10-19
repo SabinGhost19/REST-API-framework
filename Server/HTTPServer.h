@@ -6,9 +6,9 @@
 #include <sstream>
 #include <arpa/inet.h>
 #include <unistd.h>
-#include "../Router.h"
-#include "../Response.h"
-#include "../Request.h"
+#include "Router.h"
+#include "json.hpp"
+
 typedef std::string (*RouteHandler)(const std::string &);
 
 class RestServer

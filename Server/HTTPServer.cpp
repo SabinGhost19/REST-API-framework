@@ -101,8 +101,8 @@ std::string RestServer::parse_request(const std::string &request)
     return route;                      // Returnăm ruta
 }
 
-// Un exemplu de handler pentru ruta /hello
-std::string hello_handler(const std::string &request)
-{
-    return "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
-}
+// // Un exemplu de handler pentru ruta /hello
+// std::string hello_handler(const std::string &request)
+// {
+//     return "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
+// }

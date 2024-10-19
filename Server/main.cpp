@@ -1,6 +1,5 @@
 #include <iostream>
-#include "HTTP_Server.h"
-#include "./temp/HTTPServer.h"
+#include "HTTPServer.h"
 
 #define PORT 8080
 // Funcția care transformă JSON în string
