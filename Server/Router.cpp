@@ -8,7 +8,7 @@ void Router::addRoute(const std::string &method,
 }
 void Router::route(Request &req, Response &res)
 {
-    auto key = req.GetPath() + req.GetMethod();
+    auto key = req.GetMethod() + req.GetPath();
 
     if (this->routes.find(key) != this->routes.end())
     {
@@ -18,6 +18,6 @@ void Router::route(Request &req, Response &res)
     {
         res.SetStatusCode(404);
         std::string bdy = "Not Found";
-        res.send(bdy);
+        res.Send(bdy);
     }
 }

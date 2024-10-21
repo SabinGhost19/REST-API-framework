@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "C/C++: g++ build active file",
+            "type": "shell",
+            "command": "/usr/bin/g++", // Folosește g++ pentru C++
+            "args": [
+                "-fdiagnostics-color=always",
+                "-g", // Opțiunea pentru debugging
+                "${file}", // Fișierul sursă activ
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}" // Calea executabilului generat
+            ],
+            "options": {
+                "cwd": "${fileDirname}" // Directorul curent de lucru
+            },
+            "problemMatcher": [
+                "$gcc" // Folosește matcher-ul pentru GCC
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true // Sarcina de build implicită
+            },
+            "detail": "Task generated for C++ debugging."
+        }
+    ]
+}

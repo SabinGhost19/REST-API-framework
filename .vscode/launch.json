@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug Executable",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Server/main",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Activează pretty-printing pentru gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build",
+            "sourceFileMap": {
+                "/usr/src": "${workspaceFolder}/path/to/your/source"
+            }
+        }
+    ]
+}

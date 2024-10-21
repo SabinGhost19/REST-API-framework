@@ -9,13 +9,9 @@
 //->req
 // addMiddle : interf e#include "W_FrREST.h"
 
-// thread pooling\// taskuri asincrone??
-// multi db comp //repository pattern, //clase primitive de conexiuni
-// https
-// middleware // !!!!!!! // inregistrare middleware in request
 
-//->req
-// addMiddle : interf ex dofilter();
+
+
 
 // int main()
 // {

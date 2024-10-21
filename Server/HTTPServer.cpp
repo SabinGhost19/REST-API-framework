@@ -62,35 +62,37 @@ void RestServer::run()
 void RestServer::handle_client(int client_fd)
 {
     char buffer[1024] = {0};
-    int val = read(client_fd, buffer, sizeof(buffer));
-    if (val > 0)
+    ssize_t bytes_read = read(client_fd, buffer, sizeof(buffer));
+    if (bytes_read > 0)
     {
-        std::cout << "Received request:\n"
+
+        std::string request(buffer);
+        buffer[bytes_read] = '\0'; // Adaugă terminator de string
+        std::cout << "Request received:\n"
                   << buffer << std::endl;
+
+        std::string route = parse_request(request);
+
+        std::string method = request.substr(0, request.find(" "));
+        std::string key = route + method;
+
+        Response res(client_fd);
+        Request req(route, method, "");
+
+        this->router->route(req, res);
+        // if (routes.find(key) != routes.end())
+        // {
+        //     // Găsim handler-ul rutei
+        //     std::string response = routes[key](request);
+        //     write(client_fd, response.c_str(), response.length());
+        // }
+        // else
+        // {
+        //     // Răspuns 404
+        //     std::string response = "HTTP/1.1 404 Not Found\r\n\r\n";
+        //     write(client_fd, response.c_str(), response.length());
+        // }
     }
-
-    std::string request(buffer);
-    std::string route = parse_request(request);
-
-    std::string method = request.substr(0, request.find(" "));
-    std::string key = route + " " + method;
-
-    Response res;
-    Request req(route, method, "");
-
-    this->router->route(req, res);
-    // if (routes.find(key) != routes.end())
-    // {
-    //     // Găsim handler-ul rutei
-    //     std::string response = routes[key](request);
-    //     write(client_fd, response.c_str(), response.length());
-    // }
-    // else
-    // {
-    //     // Răspuns 404
-    //     std::string response = "HTTP/1.1 404 Not Found\r\n\r\n";
-    //     write(client_fd, response.c_str(), response.length());
-    // }
 }
 
 std::string RestServer::parse_request(const std::string &request)

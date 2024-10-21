@@ -12,12 +12,13 @@ private:
     int statusCode = 0;
     json stringToJson(const std::string &jsonString);
     std::string jsonToString(const json &jsonObj);
+    int client_fd = 0;
 
 public:
-    Response() : statusCode(200) {}
+    Response(int);
     void SetHeader(const std::string &name, const std::string &value);
     void SetStatusCode(int status_code);
-    void send(const std::string &body);
-    void send(const json &body);
-    void send(const char *body);
+    std::string Send(const std::string &body);
+    std::string Send(const json &body);
+    std::string Send(const char *body);
 };

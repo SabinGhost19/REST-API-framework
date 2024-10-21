@@ -1,7 +1,7 @@
 #include <iostream>
 #include "HTTPServer.h"
 
-#define PORT 8080
+#define PORT 8082
 // Funcția care transformă JSON în string
 std::string jsonToString(const json &jsonObj)
 {
@@ -49,10 +49,21 @@ void functieptGET(Request &req, Response &res)
     std::cout << body << std::endl;
 
     std::string r = req.GetMethod();
-    std::cout << "method:" << r << std::endl;
+    std::cout << "method..........................:" << r << std::endl;
 
     res.SetStatusCode(204);
-    res.send("BUna de la server");
+
+    json jsonBody = {
+        {"username", "john"},
+        {"password", "1234"}};
+    res.Send(jsonBody);
+    // WORK ON THIS CASE, but hardcoded lenght
+
+    // Content-lenght este hardcodat, TREBUIE MODIFICAT
+    //  res.Send("mama are mere const char***");
+
+    // std::string string_my = "server tring....";
+    // res.Send(string_my);
 }
 
 int main()

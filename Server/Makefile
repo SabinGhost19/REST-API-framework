@@ -1,6 +1,6 @@
 # Definirea variabilelor
 CXX = g++
-CXXFLAGS = -std=c++17 -Wall -Wextra
+CXXFLAGS = -std=c++17 -Wall -Wextra -g # Adăugat -g pentru debugging
 SOURCES = main.cpp HTTPServer.cpp Request.cpp Response.cpp Router.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 TARGET = main
