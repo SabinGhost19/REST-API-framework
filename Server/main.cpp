@@ -1,7 +1,8 @@
 #include <iostream>
 #include "HTTPServer.h"
+#include "Utils.h"
 
-#define PORT 8082
+#define PORT 8081
 // Funcția care transformă JSON în string
 std::string jsonToString(const json &jsonObj)
 {
@@ -49,18 +50,20 @@ void functieptGET(Request &req, Response &res)
     std::cout << body << std::endl;
 
     std::string r = req.GetMethod();
-    std::cout << "method..........................:" << r << std::endl;
-
-    res.SetStatusCode(204);
+    std::cout << "Developer Function: \nMethod : " << r << "\n Body : " << body << std::endl;
 
     json jsonBody = {
         {"username", "john"},
         {"password", "1234"}};
+    res.SetStatusCode(202);
+    res.Connection_Type(ConnectionType::Close);
+    res.Content_Type(ContentType::ApplicationJson);
     res.Send(jsonBody);
-    // WORK ON THIS CASE, but hardcoded lenght
 
-    // Content-lenght este hardcodat, TREBUIE MODIFICAT
-    //  res.Send("mama are mere const char***");
+    // res.SetStatusCode(202);
+    // res.Connection_Type(ConnectionType::Close);
+    // res.Content_Type(ContentType::TextPlain);
+    // res.Send("mama are mere const char***");
 
     // std::string string_my = "server tring....";
     // res.Send(string_my);
@@ -75,28 +78,6 @@ int main()
     server.addRouter(router);
 
     server.run();
-    // std::map<std::string, std::string> headers = {
-    //     {"Host", "example.com"},
-    //     {"Content-Type", "application/json"},
-    //     {"Content-Length", "27"}};
-
-    // // Creăm un obiect JSON pentru corpul cererii
-    // json jsonBody = {
-    //     {"username", "john"},
-    //     {"password", "1234"}};
-
-    // // Crearea request-ului HTTP cu JSON
-    // std::string httpRequest = createHttpRequest("GET", "/home", "HTTP/1.1", headers, jsonBody);
-
-    // std::string method = httpRequest.substr(0, httpRequest.find(' '));
-    // std::string path = httpRequest.substr(httpRequest.find(' ') + 1);
-
-    // path = path.substr(0, path.find(' '));
-
-    // Request request(method, path, ""); // for simplicity, no body parsing
-    // Response response;
-
-    // router.route(request, response);
 
     return 0;
 }

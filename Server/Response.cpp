@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <sstream>
+#include "Utils.h"
 
 void Response::SetHeader(const std::string &name, const std::string &value)
 {
@@ -21,7 +22,10 @@ std::string Response::Send(const std::string &body)
 {
     std::ostringstream request;
     std::cout << "Status: " << statusCode << "\n";
-    request << "HTTP/1.1 200 OK\r\n";
+    request << "HTTP/1.1 ";
+    request << getStatusMessage(this->statusCode) << "\r\n";
+
+    this->headers["Content-Length"] = body.size();
     for (const auto &header : headers)
     {
         request << header.first << ": " << header.second << "\n";
@@ -29,6 +33,7 @@ std::string Response::Send(const std::string &body)
     request << "\n";
 
     request << body;
+
     std::cout << "Response formed: " << request.str();
 
     // trimitem requestul
@@ -50,8 +55,17 @@ std::string Response::Send(const char *body)
 {
     std::ostringstream request;
     std::cout << "Status: " << statusCode << "\n";
+    request << "HTTP/1.1 ";
+    request << getStatusMessage(this->statusCode) << "\r\n";
 
-    request << "HTTP/1.1 200 OK\r\n";
+    int length = 0;
+    // Parcurgem șirul până întâlnim caracterul nul ('\0')
+    while (body[length] != '\0')
+    {
+        length++;
+    }
+    std::string lenght_str = std::to_string(length);
+    this->headers["Content-Length"] = lenght_str.c_str();
 
     for (const auto &header : headers)
     {
@@ -60,6 +74,7 @@ std::string Response::Send(const char *body)
     request << "\n";
 
     request << body;
+
     std::cout << "Response formed: " << request.str();
 
     // trimitem requestul
@@ -90,7 +105,7 @@ Response::Response(int client_fd)
     // Date: Wed, 21 Oct 2023 07:28:00 GMT
 
     headers["Connection"] = "close";
-    headers["Content-Length"] = "37"; // Va fi setat corespunzător mai târziu
+    headers["Content-Length"] = "0"; // Va fi setat corespunzător mai târziu
     headers["Content-Type"] = "application/json";
     headers["Host"] = "localhost";
     headers["Server"] = "MyHttpServer/1.0";
@@ -102,20 +117,21 @@ std::string Response::Send(const json &body)
 
     std::ostringstream request;
     std::cout << "Status: " << statusCode << "\n";
-    request << "HTTP/1.1 200 OK\r\n";
+    request << "HTTP/1.1 ";
+    request << getStatusMessage(this->statusCode) << "\r\n";
+
+    std::string body_str = jsonToString(body);
+    std::string lenght = std::to_string(body_str.length());
+    headers["Content-Length"] = lenght;
+
     for (const auto &header : headers)
     {
         request << header.first << ": " << header.second << "\n";
     }
     request << "\n";
 
-    if (!body.empty())
-    {
-        std::string body_str = jsonToString(body);
-        std::string lenght = std::to_string(body_str.length());
-        headers["Content-Length"] = lenght;
-        request << body_str;
-    }
+    request << body_str;
+
     std::cout << "Response formed: " << request.str();
 
     // trimitem requestul
@@ -124,14 +140,25 @@ std::string Response::Send(const json &body)
               << std::endl;
     std::cout << "Request SENT: " << request.str() << std::endl;
 
-    char buffer[1024] = {0};
+    if (this->headers["Connection"] == "close")
+    {
+        close(this->client_fd);
 
-    // Citim raspunsul serverului
-    int valread = read(this->client_fd, buffer, 1024);
+        return "--connection_closed--<empty>";
+    }
+    else
+    {
+        // pentru keep-alive sau upgrade
+        char buffer[1024] = {0};
 
-    close(this->client_fd);
+        // Citim raspunsul serverului
+        int valread = read(this->client_fd, buffer, 1024);
 
-    return buffer;
+        close(this->client_fd);
+
+        return buffer;
+    }
+    return "";
 }
 
 json Response::stringToJson(const std::string &jsonString)
@@ -162,4 +189,18 @@ std::string Response::jsonToString(const json &jsonObj)
         std::cerr << "Eroare la serializarea JSON-ului: " << e.what() << std::endl;
         return "";
     }
+}
+
+void Response::Content_Type(ContentType type)
+{
+    std::string mssg = getContentTypeHeader(type);
+
+    this->headers["Content-Type"] = mssg.c_str();
+}
+
+void Response::Connection_Type(ConnectionType type)
+{
+    std::string mssg = getConnectionHeader(type);
+
+    headers["Connection"] = mssg.c_str();
 }

@@ -3,7 +3,8 @@
 #include "json.hpp"
 
 using nlohmann::json;
-
+enum class ContentType;
+enum class ConnectionType;
 class Response
 {
 
@@ -21,4 +22,6 @@ public:
     std::string Send(const std::string &body);
     std::string Send(const json &body);
     std::string Send(const char *body);
+    void Content_Type(ContentType type);
+    void Connection_Type(ConnectionType type);
 };
