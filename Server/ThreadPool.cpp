@@ -1,6 +1,6 @@
 #include "ThreadPool.h"
 
-ThreadPoll::ThreadPoll(size_t number_of_threads)
+ThreadPool::ThreadPool(size_t number_of_threads)
 {
     for (size_t i = 0; i < number_of_threads; i++)
     {
@@ -49,57 +49,18 @@ ThreadPoll::ThreadPoll(size_t number_of_threads)
     }
 }
 
-template <class F>
-// metoda enqueue pentru aduagarea unui task in coada de
-// taskuri si de a-l executa asincron
-auto ThreadPoll::enqueue(F &&f) -> std::future<typename std::result_of<F()>::type>
+ThreadPool::~ThreadPool()
 {
-    // definirea tipului de returnare a taskului
-    // helpful pentru lucrul ulterior cu acesta
-    using return_type = typename std::result_of<F()>::type;
-
-    // std::packaged_task este un wrapper
-    // care permite să legam un task de un std::future
-    //---------------
-    // std::make_shared creează un pointer inteligent catre task,
-    // astfel încat să fie gestionat în siguranta
-    auto task = std::make_shared<std::packaged_task<return_type()>>(std::forward<F>(f));
-
-    // obtinerea unui std::future
-    // care contine rezultatul taskului si care va fi utilizat mai departe
-    //"cu el lucram" de acum
-    std::future<return_type> response = task->get_future();
-
-    // adaugare de scope
-    // pentru mai buna gestionare si control a alocarii variabilelor
     {
-        std::unique_lock<std::mutex> lock(queue_mutex);
-        // blocam accesul la coada pentru a putea adauga un task
-        // adaugarea unui task in queueu
-        // de inteles: --adaugarea prin apelarea taskului generat anterior
-        // este un make_shared, deci deferentiem
-        // iar dupa apelam pentru ca in packaged_task este "containerizata" functia
-
-        this->tasks_queue.emplace([task]()
-                                  { (*task)(); });
+        // blocam mutex-ul pentru a seta flag-ul de oprire
+        std::unique_lock<std::mutex> lock(this->queue_mutex);
+        this->stop = true;
     }
-    // exit scope:)
-
-    // notificare threaduri ca exista a new task in the hood*()*()*)
+    // notificam toate thread-urile pentru a le permite sa se opreasca
     this->condition_var.notify_all();
-    return response;
-}
-
- ThreadPoll::~ThreadPool() {
-        {
-            // blocam mutex-ul pentru a seta flag-ul de oprire
-            std::unique_lock<std::mutex> lock(this->queue_mutex);
-            this->stop = true;
-        }
-        // notificam toate thread-urile pentru a le permite sa se opreasca
-        this->condition_var.notify_all();
-        // wait ca toate thread-urile sa se opreasca, cu: (join)
-        for (std::thread &thread__ : this->all_threads_vec) {
-            thread__.join();
-        }
+    // wait ca toate thread-urile sa se opreasca, cu: (join)
+    for (std::thread &thread__ : this->all_threads_vec)
+    {
+        thread__.join();
     }
+}

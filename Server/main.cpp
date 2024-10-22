@@ -71,10 +71,18 @@ void functieptGET(Request &req, Response &res)
 
 int main()
 {
+    // Apache Benchmark -testing command
+    // ab -n 100 -c 10 http://localhost:8081/home
+    // ab -n 100 -c 2 -s 60 http://localhost:8081/home
+    //...not working...????????
+
+    // httperf:
+    // httperf --server localhost --port 8081 --uri /home --num-conns 1500 --rate 50
+
     Router *router = new Router();
     router->addRoute("GET", "/home", functieptGET);
 
-    RestServer server(PORT);
+    RestServer server(PORT, 5);
     server.addRouter(router);
 
     server.run();

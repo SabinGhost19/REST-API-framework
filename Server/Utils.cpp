@@ -65,23 +65,23 @@ std::string getContentTypeHeader(ContentType type)
     switch (type)
     {
     case ContentType::TextPlain:
-        return "Content-Type: text/plain";
+        return "text/plain";
     case ContentType::TextHtml:
-        return "Content-Type: text/html";
+        return "text/html";
     case ContentType::ApplicationJson:
-        return "Content-Type: application/json";
+        return "application/json";
     case ContentType::ApplicationXml:
-        return "Content-Type: application/xml";
+        return "application/xml";
     case ContentType::ImagePng:
-        return "Content-Type: image/png";
+        return "image/png";
     case ContentType::ImageJpeg:
-        return "Content-Type: image/jpeg";
+        return "image/jpeg";
     case ContentType::VideoMp4:
-        return "Content-Type: video/mp4";
+        return "video/mp4";
     case ContentType::AudioMpeg:
-        return "Content-Type: audio/mpeg";
+        return "audio/mpeg";
     default:
-        return "Content-Type: text/plain"; // Valoare implicita
+        return "text/plain"; // Valoare implicita
     }
 }
 

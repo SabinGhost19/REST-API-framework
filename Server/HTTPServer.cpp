@@ -1,7 +1,9 @@
 #include "HTTPServer.h"
 
-RestServer::RestServer(int port) : port(port)
+RestServer::RestServer(int port, int number_of_threads) : port(port)
 {
+    this->threadPool = new ThreadPool(number_of_threads);
+
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0)
     {
@@ -40,7 +42,7 @@ void RestServer::addRouter(Router *_router)
 
 void RestServer::run()
 {
-    std::cout << "Server is listening on port " << port << std::endl;
+    std::cout << "Server is listening on port " << this->port << std::endl;
     while (true)
     {
         struct sockaddr_in client_addr;
@@ -52,9 +54,37 @@ void RestServer::run()
             perror("Accept failed");
             continue;
         }
-        std::cout << "Client connected!" << std::endl;
-        handle_client(client_fd);
-        close(client_fd);
+
+        try
+        {
+            this->threadPool->enqueue([this, client_fd]
+                                      {
+                                          try
+                                          {
+                                              handle_client(client_fd); // gestionam clientul
+                                              // si cautam functia implementata de developer
+                                          }
+                                          catch (const std::exception &e)
+                                          {
+                                              std::cerr << "Error handling client: " << e.what() << std::endl;
+                                          }
+                                          catch (...)
+                                          {
+                                              std::cerr << "Unknown error occurred while handling client." << std::endl;
+                                          }
+                                          close(client_fd); // inchidem conexiunea cu clientul dupa ce am terminat
+                                      });
+        }
+        catch (const std::exception &e)
+        {
+            std::cerr << "Failed to enqueue client handling task: " << e.what() << std::endl;
+            close(client_fd); // daca nu putem adauga task-ul in pool
+        }
+        catch (...)
+        {
+            std::cerr << "Unknown error occurred while enqueuing client handling task." << std::endl;
+            close(client_fd); // daca nu putem adauga task-ul in pool
+        }
     }
 }
 
