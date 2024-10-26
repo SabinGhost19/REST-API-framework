@@ -1,7 +1,7 @@
 # Definirea variabilelor
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -g # Adăugat -g pentru debugging
-SOURCES = main.cpp HTTPServer.cpp Request.cpp Response.cpp Router.cpp Utils.cpp ThreadPool.cpp
+SOURCES = main.cpp HTTPServer.cpp Request.cpp Response.cpp Router.cpp Utils.cpp ThreadPool.cpp MiddleWare.cpp
 OBJECTS = $(SOURCES:.cpp=.o)
 TARGET = main
 
@@ -16,9 +16,9 @@ $(TARGET): $(OBJECTS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Regula pentru curățare (ștergerea fișierelor obiect și a executabilului)
+# Regula pentru curățare (stergerea fișierelor obiect și a executabilului)
 clean:
 	rm -f $(OBJECTS) $(TARGET)
 
-# Regula pentru a afişa informaţii despre utilizare
+# Regula pentru a afișa informații despre utilizare
 .PHONY: all clean

@@ -1,3 +1,6 @@
+#ifndef REQUEST
+#define REQUEST
+
 #include <string.h>
 #include <iostream>
 
@@ -11,8 +14,10 @@ private:
 
 public:
     Request(const std::string &path_, const std::string &method_, const std::string &body_) : path(path_), method(method_), body(body_) {}
-
+    Request() {}
     std::string GetPath() { return this->path; }
     std::string GetMethod() { return this->method; }
     std::string GetBody() { return this->body; }
 };
+
+#endif // REQUEST

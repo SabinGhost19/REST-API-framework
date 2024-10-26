@@ -9,6 +9,7 @@
 #include "Router.h"
 #include "json.hpp"
 #include "ThreadPool.h"
+#include "MiddleWare.h"
 
 typedef std::string (*RouteHandler)(const std::string &);
 
@@ -19,8 +20,10 @@ public:
     ~RestServer();
     void addRouter(Router *_router);
     void run();
+    void use(MiddleWare::MidW_Handler middleWare_function);
 
 private:
+    MiddleWare *middleWare = NULL;
     Router *router = NULL;
     ThreadPool *threadPool = NULL;
     int port;

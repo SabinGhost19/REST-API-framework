@@ -3,6 +3,7 @@
 RestServer::RestServer(int port, int number_of_threads) : port(port)
 {
     this->threadPool = new ThreadPool(number_of_threads);
+    this->middleWare = new MiddleWare();
 
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0)
@@ -39,6 +40,12 @@ void RestServer::addRouter(Router *_router)
 {
     this->router = _router;
 }
+void RestServer::use(MiddleWare::MidW_Handler middleWare_function)
+{
+
+    // add the middleWare in the middleWares functional pool
+    this->middleWare->use_this_middleWare(middleWare_function);
+}
 
 void RestServer::run()
 {
@@ -57,12 +64,18 @@ void RestServer::run()
 
         try
         {
+            // enqueue de functie-> lambda si definirea sa
             this->threadPool->enqueue([this, client_fd]
                                       {
                                           try
                                           {
-                                              handle_client(client_fd); // gestionam clientul
-                                              // si cautam functia implementata de developer
+                                              Request req;
+                                              Response res;
+                                              this->middleWare->execute_middleWares(req, res, [this, &req, &res, client_fd]()
+                                                                                    {
+                                                                                        handle_client(client_fd); // gestionam clientul
+                                                                                                                  // si cautam functia implementata de developer
+                                                                                    });
                                           }
                                           catch (const std::exception &e)
                                           {

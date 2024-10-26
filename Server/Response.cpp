@@ -10,6 +10,8 @@
 #include <sstream>
 #include "Utils.h"
 
+Response::Response() {}
+
 void Response::SetHeader(const std::string &name, const std::string &value)
 {
     this->headers[name] = value;

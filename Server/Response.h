@@ -1,3 +1,6 @@
+#ifndef RESPONSE
+#define RESPONSE
+
 #include <iostream>
 #include <map>
 #include "json.hpp"
@@ -17,6 +20,7 @@ private:
 
 public:
     Response(int);
+    Response();
     void SetHeader(const std::string &name, const std::string &value);
     void SetStatusCode(int status_code);
     std::string Send(const std::string &body);
@@ -25,3 +29,5 @@ public:
     void Content_Type(ContentType type);
     void Connection_Type(ConnectionType type);
 };
+
+#endif // RESPONSE

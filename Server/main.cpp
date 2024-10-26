@@ -78,12 +78,21 @@ int main()
 
     // httperf:
     // httperf --server localhost --port 8081 --uri /home --num-conns 1500 --rate 50
+    //----meaning: 50 pe second
+
+    // classic testing
+    // curl http://localhost:8081/home
 
     Router *router = new Router();
     router->addRoute("GET", "/home", functieptGET);
 
     RestServer server(PORT, 5);
     server.addRouter(router);
+
+    server.use([](Request &req, Response &res, std::function<void()> next)
+               {
+       std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
+        next(); });
 
     server.run();
 
