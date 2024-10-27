@@ -2,7 +2,7 @@
 #include "HTTPServer.h"
 #include "Utils.h"
 
-#define PORT 8081
+#define PORT 8080
 // Funcția care transformă JSON în string
 std::string jsonToString(const json &jsonObj)
 {

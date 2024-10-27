@@ -107,10 +107,13 @@ Response::Response(int client_fd)
     // Date: Wed, 21 Oct 2023 07:28:00 GMT
 
     headers["Connection"] = "close";
-    headers["Content-Length"] = "0"; // Va fi setat corespunzător mai târziu
+    headers["Content-Length"] = "0"; // Va fi setat dupa
     headers["Content-Type"] = "application/json";
     headers["Host"] = "localhost";
     headers["Server"] = "MyHttpServer/1.0";
+    headers["Access-Control-Allow-Origin"] = "*";
+    headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS";
+    headers["Access-Control-Allow-Headers"] = "Content-Type";
     // headers["Date"] = getCurrentDate();
 }
 
@@ -130,7 +133,7 @@ std::string Response::Send(const json &body)
     {
         request << header.first << ": " << header.second << "\n";
     }
-    request << "\n";
+    request << "\r\n";
 
     request << body_str;
 
