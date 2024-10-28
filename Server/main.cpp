@@ -48,7 +48,6 @@ void functieptGET(Request &req, Response &res)
 {
     std::string body = req.GetBody();
     std::cout << body << std::endl;
-
     std::string r = req.GetMethod();
     std::cout << "Developer Function: \nMethod : " << r << "\n Body : " << body << std::endl;
 
@@ -59,7 +58,6 @@ void functieptGET(Request &req, Response &res)
     res.Connection_Type(ConnectionType::Close);
     res.Content_Type(ContentType::ApplicationJson);
     res.Send(jsonBody);
-
     // res.SetStatusCode(202);
     // res.Connection_Type(ConnectionType::Close);
     // res.Content_Type(ContentType::TextPlain);
@@ -68,6 +66,7 @@ void functieptGET(Request &req, Response &res)
     // std::string string_my = "server tring....";
     // res.Send(string_my);
 }
+// void functieptGET_2(Request &req, Response &res, std::function<void()> next);
 
 int main()
 {
@@ -83,6 +82,26 @@ int main()
     // classic testing
     // curl http://localhost:8081/home
 
+    //
+    // am mai inceput si trebuie continuat:
+    // testare cereri direct din browser
+    //
+    //
+    // FUTURE IDEEAS:
+    // redis sau propriul sistem de cache????
+    // https://github.com/sewenew/redis-plus-plus
+    // client redis++ repo ----
+
+    //  prioritizare  utilizatori autentificati sau cu rol premium
+    //---stocare nr cereri per ip sau token pentru asta????
+    //
+    // routing flexibil si dinamic folosind regex???
+    //
+    // advanced logging sistem!!!!!!!
+
+    /// suport pentru task scheduling si background jobs?????
+    //
+
     Router *router = new Router();
     router->addRoute("GET", "/home", functieptGET);
 
@@ -93,6 +112,8 @@ int main()
                {
        std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
         next(); });
+
+    // server.use(functieptGET_2);
 
     server.run();
 
