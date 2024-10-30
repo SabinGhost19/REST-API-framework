@@ -12,6 +12,46 @@
 
 Response::Response() {}
 
+void Response::SendFile(const std::string &file_path)
+{
+    std::ifstream file(file_path);
+    if (!file.is_open())
+    {
+        SetStatusCode(404);
+        SetBody("<html><body><h1>404 Not Found</h1></body></html>");
+        headers["Content-Type"] = "text/html";
+        Send();
+        return;
+    }
+
+    std::ostringstream file_content;
+    file_content << file.rdbuf();
+    body = file_content.str();
+    headers["Content-Type"] = "text/html";
+    headers["Content-Length"] = std::to_string(body.size());
+
+    Send();
+}
+void Response::SetBody(const std::string &body_)
+{
+    body = std::move(body_);
+}
+void Response::Send()
+{
+    std::stringstream response;
+    response << "HTTP/1.1 " << statusCode << " " << getStatusMessage(statusCode) << "\r\n";
+    for (const auto &header : headers)
+    {
+        response << header.first << ": " << header.second << "\r\n";
+    }
+    response << "Content-Length: " << body.size() << "\r\n";
+    response << "\r\n";
+    response << body;
+
+    std::string response_str = response.str();
+    send(client_fd, response_str.c_str(), response_str.size(), 0);
+    close(client_fd);
+}
 void Response::SetHeader(const std::string &name, const std::string &value)
 {
     this->headers[name] = value;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <map>
 #include "json.hpp"
+#include <fstream>
 
 using nlohmann::json;
 enum class ContentType;
@@ -12,11 +13,14 @@ class Response
 {
 
 private:
+    std::string body;
     std::map<std::string, std::string> headers;
     int statusCode = 0;
     json stringToJson(const std::string &jsonString);
     std::string jsonToString(const json &jsonObj);
     int client_fd = 0;
+    void Send();
+    void SetBody(const std::string &body_);
 
 public:
     Response(int);
@@ -26,6 +30,7 @@ public:
     std::string Send(const std::string &body);
     std::string Send(const json &body);
     std::string Send(const char *body);
+    void SendFile(const std::string &file_path);
     void Content_Type(ContentType type);
     void Connection_Type(ConnectionType type);
 };
