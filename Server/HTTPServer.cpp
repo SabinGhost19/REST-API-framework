@@ -100,7 +100,51 @@ void RestServer::run()
         }
     }
 }
+std::string parse_request(const std::string &request)
+{
+    size_t pathStart = request.find(" ") + 1;
+    size_t pathEnd = request.find(" ", pathStart);
+    return request.substr(pathStart, pathEnd - pathStart);
+}
 
+std::map<std::string, std::string> parse_headers(const std::string &request)
+{
+    std::map<std::string, std::string> headers;
+    size_t headerStart = request.find("\r\n") + 2;
+    size_t bodyStart = request.find("\r\n\r\n");
+    if (bodyStart == std::string::npos)
+    {
+        return headers;
+    }
+
+    std::string headersString = request.substr(headerStart, bodyStart - headerStart);
+    std::stringstream ss(headersString);
+    std::string line;
+    while (std::getline(ss, line))
+    {
+        if (line.find(": ") != std::string::npos)
+        {
+            size_t delimiterPos = line.find(": ");
+            std::string key = line.substr(0, delimiterPos);
+            std::string value = line.substr(delimiterPos + 2);
+            if (!key.empty() && !value.empty())
+            {
+                headers[key] = value;
+            }
+        }
+    }
+    return headers;
+}
+
+std::string parse_body(const std::string &request)
+{
+    size_t bodyStart = request.find("\r\n\r\n");
+    if (bodyStart != std::string::npos)
+    {
+        return request.substr(bodyStart + 4);
+    }
+    return "";
+}
 // Tratarea unei cereri client
 void RestServer::handle_client(int client_fd)
 {
@@ -108,46 +152,24 @@ void RestServer::handle_client(int client_fd)
     ssize_t bytes_read = read(client_fd, buffer, sizeof(buffer));
     if (bytes_read > 0)
     {
-
         std::string request(buffer);
-        buffer[bytes_read] = '\0'; // Adaugă terminator de string
+        buffer[bytes_read] = '\0';
         std::cout << "Request received:\n"
                   << buffer << std::endl;
 
+        // Parse method, route, headers, and body
         std::string route = parse_request(request);
-
         std::string method = request.substr(0, request.find(" "));
-        std::string key = route + method;
+        auto headers = parse_headers(request);
+        std::string body = parse_body(request);
+
+        // Create Request object
+        Request req(route, method, body, headers);
+        req.ParseQueryParams();
 
         Response res(client_fd);
-        Request req(route, method, "");
 
+        // Route the request
         this->router->route(req, res);
-        // if (routes.find(key) != routes.end())
-        // {
-        //     // Găsim handler-ul rutei
-        //     std::string response = routes[key](request);
-        //     write(client_fd, response.c_str(), response.length());
-        // }
-        // else
-        // {
-        //     // Răspuns 404
-        //     std::string response = "HTTP/1.1 404 Not Found\r\n\r\n";
-        //     write(client_fd, response.c_str(), response.length());
-        // }
     }
 }
-
-std::string RestServer::parse_request(const std::string &request)
-{
-    std::istringstream iss(request);
-    std::string method, route, version;
-    iss >> method >> route >> version; // Extragem metoda, ruta și versiunea
-    return route;                      // Returnăm ruta
-}
-
-// // Un exemplu de handler pentru ruta /hello
-// std::string hello_handler(const std::string &request)
-// {
-//     return "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\nHello, World!";
-// }

@@ -31,5 +31,4 @@ private:
     std::unordered_map<std::string, RouteHandler> routes;
 
     void handle_client(int client_fd);
-    std::string parse_request(const std::string &request);
 };
