@@ -66,6 +66,26 @@ void functieptGET(Request &req, Response &res)
     // std::string string_my = "server tring....";
     // res.Send(string_my);
 }
+
+void functionForSendingFile(Request &req, Response &res)
+{
+    if (req.GetMethod() == "GET" && req.GetPath() == "/htmlFile")
+    {
+
+        res.Content_Type(ContentType::TextHtml);
+        res.SendFile("file.html");
+        return;
+    }
+
+    res.SetStatusCode(400);
+    res.Connection_Type(ConnectionType::Close);
+    res.Content_Type(ContentType::ApplicationJson);
+    json jsonBody = {
+        {{"message", "Error at finding and sending the html page"}}};
+
+    res.Send(jsonBody);
+}
+
 // void functieptGET_2(Request &req, Response &res, std::function<void()> next);
 
 int main()
@@ -104,6 +124,7 @@ int main()
 
     Router *router = new Router();
     router->addRoute("GET", "/home", functieptGET);
+    router->addRoute("GET", "/htmlFile", functionForSendingFile);
 
     RestServer server(PORT, 5);
     server.addRouter(router);

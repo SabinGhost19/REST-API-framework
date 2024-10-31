@@ -14,6 +14,9 @@ Response::Response() {}
 
 void Response::SendFile(const std::string &file_path)
 {
+    std::cout << "FILE:............................................" << file_path << std::endl
+              << std::endl;
+
     std::ifstream file(file_path);
     if (!file.is_open())
     {
@@ -29,7 +32,7 @@ void Response::SendFile(const std::string &file_path)
     body = file_content.str();
     headers["Content-Type"] = "text/html";
     headers["Content-Length"] = std::to_string(body.size());
-
+    std::cout << body << std::endl;
     Send();
 }
 void Response::SetBody(const std::string &body_)

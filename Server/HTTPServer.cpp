@@ -165,8 +165,12 @@ void RestServer::handle_client(int client_fd)
 
         // Create Request object
         Request req(route, method, body, headers);
-        req.ParseQueryParams();
+        std::cout << std::endl
+                  << req.GetPath() << std::endl;
 
+        req.ParseQueryParams();
+        std::cout << std::endl
+                  << req.GetPath() << std::endl;
         Response res(client_fd);
 
         // Route the request
