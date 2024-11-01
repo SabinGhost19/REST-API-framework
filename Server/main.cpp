@@ -85,7 +85,15 @@ void functionForSendingFile(Request &req, Response &res)
 
     res.Send(jsonBody);
 }
+void functieAna(Request &req, Response &res)
+{
+    res.Content_Type(ContentType::TextPlain);
 
+    res.Connection_Type(ConnectionType::Close);
+    res.SetStatusCode(202);
+
+    res.Send("Ana sunt eu");
+}
 // void functieptGET_2(Request &req, Response &res, std::function<void()> next);
 
 int main()
@@ -125,6 +133,7 @@ int main()
     Router *router = new Router();
     router->addRoute("GET", "/home", functieptGET);
     router->addRoute("GET", "/htmlFile", functionForSendingFile);
+    router->addRoute("GET", "/dateAna", functieAna);
 
     RestServer server(PORT, 5);
     server.addRouter(router);
