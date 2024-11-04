@@ -46,7 +46,8 @@ Router - Aceasta clasa dirijeaza cererile HTTP catre handler-ele corespunzatoare
 Middleware - Functii care se execută înainte de handler-ul final al cererii, permitand preprocesarea cererilor, autentificarea utilizatorilor, sau logarea cererilor si raspunsurilor.
 
 Diagrama de clase
-image
+![image](https://github.com/user-attachments/assets/52e87922-bbae-4476-9407-d520ba96314b)
+
 
 Detalierea cerintelor specifice
 Workflow principal
