@@ -61,7 +61,7 @@ auto ThreadPool::enqueue(F &&f) -> std::future<typename std::result_of<F()>::typ
     // std::packaged_task este un wrapper
     // care permite să legam un task de un std::future
     //---------------
-    // std::make_shared creează un pointer inteligent catre task,
+    // std::make_shared creează un smart pointer catre task,
     // astfel încat să fie gestionat în siguranta
     auto task = std::make_shared<std::packaged_task<return_type()>>(std::forward<F>(f));
 
@@ -77,7 +77,7 @@ auto ThreadPool::enqueue(F &&f) -> std::future<typename std::result_of<F()>::typ
         // blocam accesul la coada pentru a putea adauga un task
         // adaugarea unui task in queueu
         // de inteles: --adaugarea prin apelarea taskului generat anterior
-        // este un make_shared, deci deferentiem
+        // este un make_shared, deci dereferentiem
         // iar dupa apelam pentru ca in packaged_task este "containerizata" functia
 
         this->tasks_queue.emplace([task]()

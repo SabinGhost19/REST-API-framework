@@ -61,6 +61,7 @@ ThreadPool::~ThreadPool()
     // wait ca toate thread-urile sa se opreasca, cu: (join)
     for (std::thread &thread__ : this->all_threads_vec)
     {
+        // wait for evety thread to finish
         thread__.join();
     }
 }

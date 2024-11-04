@@ -94,8 +94,12 @@ void functieAna(Request &req, Response &res)
 
     res.Send("Ana sunt eu");
 }
-// void functieptGET_2(Request &req, Response &res, std::function<void()> next);
 
+void functionMiddleWare(Request &req, Response &res, std::function<void()> next)
+{
+    std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
+    next();
+}
 int main()
 {
     // Apache Benchmark -testing command
@@ -143,6 +147,7 @@ int main()
        std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
         next(); });
 
+    server.use(functionMiddleWare);
     // server.use(functieptGET_2);
 
     server.run();

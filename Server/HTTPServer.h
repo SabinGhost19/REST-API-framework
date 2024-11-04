@@ -21,6 +21,7 @@ public:
     void addRouter(Router *_router);
     void run();
     void use(MiddleWare::MidW_Handler middleWare_function);
+    int nr_of_requests = 0;
 
 private:
     MiddleWare *middleWare = NULL;

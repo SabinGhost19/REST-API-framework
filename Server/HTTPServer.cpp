@@ -55,7 +55,8 @@ void RestServer::run()
         struct sockaddr_in client_addr;
         socklen_t client_len = sizeof(client_addr);
         int client_fd = accept(server_fd, (struct sockaddr *)&client_addr, &client_len);
-
+        this->nr_of_requests++;
+        printf("\n\n\n\n..................NR OF REQ: %d.............\n\n", this->nr_of_requests);
         if (client_fd < 0)
         {
             perror("Accept failed");
