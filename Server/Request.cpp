@@ -16,6 +16,19 @@ std::string Request::GetHeader(const std::string &key)
     }
     return "";
 }
+std::string Request::GetRouteParam(const std::string &key)
+{
+    if (routeParams.find(key) != routeParams.end())
+    {
+        return routeParams[key];
+    }
+    return "";
+}
+
+void Request::SetRouteParam(const std::string &key, const std::string &value)
+{
+    routeParams[key] = value;
+}
 void Request::ParseQueryParams()
 {
     size_t questionMarkPos = path.find("?");

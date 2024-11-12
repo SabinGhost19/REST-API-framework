@@ -2,7 +2,7 @@
 #include "HTTPServer.h"
 #include "Utils.h"
 #include "./models/PostgresDB.h"
-#define PORT 8081
+#define PORT 8082
 // Funcția care transformă JSON în string
 std::string jsonToString(const json &jsonObj)
 {
@@ -95,6 +95,14 @@ void functieAna(Request &req, Response &res)
 
     res.Send("Ana sunt eu");
 }
+void functieIDParam(Request &req,Response&res){
+    std::string id = req.GetRouteParam("id");
+
+    std::string response_body = "Requested data for ID: " + id;
+    res.SetStatusCode(200);
+    res.Content_Type(ContentType::TextPlain);
+    res.Send("MERGEEEE");
+}
 void functionMiddleWare(Request &req, Response &res, std::function<void()> next)
 {
     std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
@@ -138,26 +146,25 @@ int main()
     //TESTING CONNECTING TO THE POSTGRES CONTAINER!!!!!!!!!!!!!!!!!!!
     std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
 
-    // Crearea obiectului de bază de date și conectarea
+   
     PostgresDB db(conn_info);
     if (!db.connect()) {
-        return 1;  // Dacă nu ne putem conecta la baza de date, încheiem execuția
+        return 1; 
     }
 
-    // Executarea unei interogări simple
     std::string create_table_query = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name VARCHAR(50), age INTEGER);";
     if (!db.executeQuery(create_table_query)) {
-        return 1;  // Încheiem execuția în caz de eroare
+        return 1; 
     }
 
     std::string insert_query = "INSERT INTO test_table (name, age) VALUES ('John Doe', 30);";
     if (!db.executeQuery(insert_query)) {
         std::cerr << "Failed to insert data into the table." << std::endl;
-        return 1;  // Încheiem execuția în caz de eroare la inserare
+        return 1; 
     } else {
         std::cout << "Data inserted successfully." << std::endl;
     }
-    // Executarea unei interogări de tip SELECT și afișarea rezultatelor
+   
     std::vector<std::map<std::string, std::string>> results = db.getQueryResults("SELECT * FROM test_table;");
     for (const auto &row : results) {
         for (const auto &[column, value] : row) {
@@ -177,7 +184,7 @@ int main()
     router->addRoute("GET", "/home", functieptGET);
     router->addRoute("GET", "/htmlFile", functionForSendingFile);
     router->addRoute("GET", "/dateAna", functieAna);
-
+    router->addRoute("GET","/data/:id",functieIDParam);
     RestServer server(PORT, 5);
     server.addRouter(router);
     

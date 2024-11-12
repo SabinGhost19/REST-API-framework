@@ -4,7 +4,7 @@
 #include <functional>
 #include "Request.h"
 #include "Response.h"
-
+#include <regex>
 class Router
 {
 
@@ -18,5 +18,6 @@ public:
                   RouteCallback callback_function);
     void route(Request &req, Response &res);
 };
+
 
 #endif
