@@ -30,6 +30,6 @@ private:
     int port;
     int server_fd;
     std::unordered_map<std::string, RouteHandler> routes;
-
-    void handle_client(int client_fd);
+    std::pair<Request,Response> receiveTheRequest(int client_fd);
+    void handle_client(Request &req,Response &res);
 };

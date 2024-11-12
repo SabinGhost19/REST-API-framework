@@ -1,54 +1,102 @@
 #include "ThreadPool.h"
 
+// ThreadPool::ThreadPool(size_t number_of_threads)
+// {
+//     for (size_t i = 0; i < number_of_threads; i++)
+//     {
+//         // crearea thread si adaugare in vectorul de threaduri
+//         this->all_threads_vec.emplace_back([this]
+//                                            {
+//                 // definirea buclei infinite pentru verificarea
+//                 // existentei unui task disponibil
+//                 while (true)
+//                 {
+//                     std::function<void()> task;
+//                     {
+//                         // blocarea mutex pentru a putea accesa task queue
+//                         // fara a intmpina race conditions
+//                         std::unique_lock<std::mutex> lock(this->queue_mutex);
+
+//                         // asteptarea pana cand nu mai exista un task in coada
+//                         // sau trebuie sa oprim executia intregului proces
+//                         // utilizarea unei functii lambda
+//                         this->condition_var.wait(lock, [this]
+//                                                  { return !this->tasks_queue.empty() || stop; });
+
+//                         // iesire din while daca trebuie oprit
+//                         // sau nu exista taskuri in coada
+//                         if (stop && this->tasks_queue.empty())
+//                             return;
+
+//                         // preluam taskul din coada
+//                         task = std::move(this->tasks_queue.front());
+//                         this->tasks_queue.pop();
+//                     }
+//                         try
+//                         {
+//                             // executie task si tratare a erorilor
+//                             task();
+//                         }
+//                         catch (const std::exception &e)
+//                         {
+//                             std::cerr << "Error executing task: " << e.what() << std::endl;
+//                         }
+//                         catch (...)
+//                         {
+//                             std::cerr << "Unknown error occurred while executing task." << std::endl;
+//                         }
+//                     } });
+//     }
+// }
 ThreadPool::ThreadPool(size_t number_of_threads)
 {
     for (size_t i = 0; i < number_of_threads; i++)
     {
-        // crearea thread si adaugare in vectorul de threaduri
+        // Crearea și adăugarea firelor în vectorul de fire
         this->all_threads_vec.emplace_back([this]
-                                           {
-                // definirea buclei infinite pentru verificarea
-                // existentei unui task disponibil
-                while (true)
+        {
+            while (true)
+            {
+                std::function<void()> task;
                 {
-                    std::function<void()> task;
+                    // Blocarea mutex-ului pentru a putea accesa coada de task-uri
+                    std::unique_lock<std::mutex> lock(this->queue_mutex);
+
+                    // Așteptăm până când există un task în coadă sau trebuie să oprim execuția
+                    this->condition_var.wait(lock, [this]
                     {
-                        // blocarea mutex pentru a putea accesa task queue
-                        // fara a intmpina race conditions
-                        std::unique_lock<std::mutex> lock(this->queue_mutex);
+                        return !this->tasks_queue.empty() || stop;
+                    });
 
-                        // asteptarea pana cand nu mai exista un task in coada
-                        // sau trebuie sa oprim executia intregului proces
-                        // utilizarea unei functii lambda
-                        this->condition_var.wait(lock, [this]
-                                                 { return !this->tasks_queue.empty() || stop; });
+                    // Dacă stop este true și nu mai există task-uri, ieșim din buclă
+                    if (stop && this->tasks_queue.empty())
+                        return;
 
-                        // iesire din while daca trebuie oprit
-                        // sau nu exista taskuri in coada
-                        if (stop && this->tasks_queue.empty())
-                            return;
+                    // Preluăm un task din coadă
+                    task = std::move(this->tasks_queue.front());
+                    this->tasks_queue.pop();
+                }
 
-                        // preluam taskul din coada
-                        task = std::move(this->tasks_queue.front());
-                        this->tasks_queue.pop();
+                // Executăm task-ul în afara scope-ului lock-ului pentru a permite altor thread-uri accesul la coadă
+                try
+                {
+                    if (task)
+                    {
+                        task();
                     }
-                        try
-                        {
-                            // executie task si tratare a erorilor
-                            task();
-                        }
-                        catch (const std::exception &e)
-                        {
-                            std::cerr << "Error executing task: " << e.what() << std::endl;
-                        }
-                        catch (...)
-                        {
-                            std::cerr << "Unknown error occurred while executing task." << std::endl;
-                        }
-                    } });
+                }
+                catch (const std::exception &e)
+                {
+                    std::cerr << "Error executing task: " << e.what() << std::endl;
+                }
+                catch (...)
+                {
+                    std::cerr << "Unknown error occurred while executing task." << std::endl;
+                }
+            }
+        });
     }
 }
-
 ThreadPool::~ThreadPool()
 {
     {

@@ -1,16 +1,15 @@
 // import { useState } from 'react'
 // import reactLogo from './assets/react.svg'
 // import viteLogo from '/vite.svg'
-import RequestButtons from './components/RequestButtons'
-import './App.css'
+import RequestButtons from './components/RequestButtons';
+import './App.css';
 
 function App() {
-
   return (
     <>
-      <RequestButtons/>
+      <RequestButtons />
     </>
-  )
+  );
 }
 
-export default App
+export default App;

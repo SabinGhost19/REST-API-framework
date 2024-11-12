@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 
 const RequestButtons = () => {
-  const apiUrl = 'http://localhost:8080';
+  const apiUrl = 'http://localhost:8081';
   const [response, setResponse] = useState('');
   const [htmlData, setHtmlData] = useState('');
 

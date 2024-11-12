@@ -1,8 +1,8 @@
 #include <iostream>
 #include "HTTPServer.h"
 #include "Utils.h"
-
-#define PORT 8080
+#include "./models/PostgresDB.h"
+#define PORT 8081
 // Funcția care transformă JSON în string
 std::string jsonToString(const json &jsonObj)
 {
@@ -54,6 +54,7 @@ void functieptGET(Request &req, Response &res)
     json jsonBody = {
         {"username", "john"},
         {"password", "1234"}};
+
     res.SetStatusCode(202);
     res.Connection_Type(ConnectionType::Close);
     res.Content_Type(ContentType::ApplicationJson);
@@ -94,7 +95,6 @@ void functieAna(Request &req, Response &res)
 
     res.Send("Ana sunt eu");
 }
-
 void functionMiddleWare(Request &req, Response &res, std::function<void()> next)
 {
     std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
@@ -134,6 +134,45 @@ int main()
     /// suport pentru task scheduling si background jobs?????
     //
 
+
+    //TESTING CONNECTING TO THE POSTGRES CONTAINER!!!!!!!!!!!!!!!!!!!
+    std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
+
+    // Crearea obiectului de bază de date și conectarea
+    PostgresDB db(conn_info);
+    if (!db.connect()) {
+        return 1;  // Dacă nu ne putem conecta la baza de date, încheiem execuția
+    }
+
+    // Executarea unei interogări simple
+    std::string create_table_query = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name VARCHAR(50), age INTEGER);";
+    if (!db.executeQuery(create_table_query)) {
+        return 1;  // Încheiem execuția în caz de eroare
+    }
+
+    std::string insert_query = "INSERT INTO test_table (name, age) VALUES ('John Doe', 30);";
+    if (!db.executeQuery(insert_query)) {
+        std::cerr << "Failed to insert data into the table." << std::endl;
+        return 1;  // Încheiem execuția în caz de eroare la inserare
+    } else {
+        std::cout << "Data inserted successfully." << std::endl;
+    }
+    // Executarea unei interogări de tip SELECT și afișarea rezultatelor
+    std::vector<std::map<std::string, std::string>> results = db.getQueryResults("SELECT * FROM test_table;");
+    for (const auto &row : results) {
+        for (const auto &[column, value] : row) {
+            std::cout << column << ": " << value << std::endl;
+        }
+        std::cout << "-----------------" << std::endl;
+    }
+
+    // Deconectarea de la baza de date
+    db.disconnect();
+
+
+
+
+
     Router *router = new Router();
     router->addRoute("GET", "/home", functieptGET);
     router->addRoute("GET", "/htmlFile", functionForSendingFile);
@@ -141,7 +180,11 @@ int main()
 
     RestServer server(PORT, 5);
     server.addRouter(router);
+    
 
+
+    //middwares are called sequentially
+    //it works as expected
     server.use([](Request &req, Response &res, std::function<void()> next)
                {
        std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;

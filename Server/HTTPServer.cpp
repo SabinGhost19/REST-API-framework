@@ -70,12 +70,19 @@ void RestServer::run()
                                       {
                                           try
                                           {
-                                              Request req;
-                                              Response res;
+                                            //receiving the actual request with all its datas
+                                            //and popualte the respective strucures
+                                            //to be used in the middlewares
+                                            //and of course in the handling functions
+                                              std::pair<Request,Response>populated_pair=this->receiveTheRequest(client_fd);
+                                              Request req=populated_pair.first;
+                                              Response res=populated_pair.second;
+                                              std::cout<<".................."<<req.GetMethod()<<"CALEEEEEAAAAAAAAAAAAAAAAAAAAAAA\n";
                                               this->middleWare->execute_middleWares(req, res, [this, &req, &res, client_fd]()
                                                                                     {
-                                                                                        handle_client(client_fd); // gestionam clientul
-                                                                                                                  // si cautam functia implementata de developer
+                                                                                        handle_client(req,res); // gestionam clientul/requestul
+                                                                                        //call ce va fi passed drept functie next() in the middlewares
+                                                                                                                  
                                                                                     });
                                           }
                                           catch (const std::exception &e)
@@ -146,15 +153,14 @@ std::string parse_body(const std::string &request)
     }
     return "";
 }
-// Tratarea unei cereri client
-void RestServer::handle_client(int client_fd)
-{
-    char buffer[1024] = {0};
-    ssize_t bytes_read = read(client_fd, buffer, sizeof(buffer));
+std::pair<Request,Response> RestServer::receiveTheRequest(int client_fd){
+
+ char buffer[1024] = {0};
+ ssize_t bytes_read = read(client_fd, buffer, sizeof(buffer));
     if (bytes_read > 0)
     {
-        std::string request(buffer);
         buffer[bytes_read] = '\0';
+        std::string request(buffer);
         std::cout << "Request received:\n"
                   << buffer << std::endl;
 
@@ -173,8 +179,13 @@ void RestServer::handle_client(int client_fd)
         std::cout << std::endl
                   << req.GetPath() << std::endl;
         Response res(client_fd);
-
+         return std::make_pair(req, res);
+    }
+    return std::make_pair(Request(), Response(client_fd));
+}
+// Tratarea unui request,call the method
+void RestServer::handle_client(Request &req,Response &res)
+{
         // Route the request
         this->router->route(req, res);
-    }
 }

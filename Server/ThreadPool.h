@@ -49,43 +49,91 @@ public:
     ~ThreadPool();
 };
 
-// metoda enqueue pentru aduagarea unui task in coada de
+// // metoda enqueue pentru aduagarea unui task in coada de
+// // taskuri si de a-l executa asincron
+// template <class F>
+// auto ThreadPool::enqueue(F &&f) -> std::future<typename std::result_of<F()>::type>
+// {
+//     // definirea tipului de returnare a taskului
+//     // helpful pentru lucrul ulterior cu acesta
+//     using return_type = typename std::result_of<F()>::type;
+
+//     // std::packaged_task este un wrapper
+//     // care permite să legam un task de un std::future
+//     //---------------
+//     // std::make_shared creează un smart pointer catre task,
+//     // astfel încat să fie gestionat în siguranta
+//     auto task = std::make_shared<std::packaged_task<return_type()>>(std::forward<F>(f));
+
+//     // obtinerea unui std::future
+//     // care contine rezultatul taskului si care va fi utilizat mai departe
+//     //"cu el lucram" de acum
+//     std::future<return_type> response = task->get_future();
+
+//     // adaugare de scope
+//     // pentru mai buna gestionare si control a alocarii variabilelor
+//     {
+//         std::unique_lock<std::mutex> lock(queue_mutex);
+//         // blocam accesul la coada pentru a putea adauga un task
+//         // adaugarea unui task in queueu
+//         // de inteles: --adaugarea prin apelarea taskului generat anterior
+//         // este un make_shared, deci dereferentiem
+//         // iar dupa apelam pentru ca in packaged_task este "containerizata" functia
+
+//         this->tasks_queue.emplace([task]()
+//                                   { (*task)(); });
+//     }
+//     // exit scope:)
+
+//     // notificare threaduri ca exista a new task in the hood*()*()*)
+//     this->condition_var.notify_all();
+//     return response;
+// }
+
+
+
+
+
+// metoda enqueue pentru adaugarea unui task in coada de
 // taskuri si de a-l executa asincron
 template <class F>
 auto ThreadPool::enqueue(F &&f) -> std::future<typename std::result_of<F()>::type>
 {
     // definirea tipului de returnare a taskului
-    // helpful pentru lucrul ulterior cu acesta
     using return_type = typename std::result_of<F()>::type;
 
     // std::packaged_task este un wrapper
     // care permite să legam un task de un std::future
-    //---------------
-    // std::make_shared creează un smart pointer catre task,
-    // astfel încat să fie gestionat în siguranta
     auto task = std::make_shared<std::packaged_task<return_type()>>(std::forward<F>(f));
 
-    // obtinerea unui std::future
-    // care contine rezultatul taskului si care va fi utilizat mai departe
-    //"cu el lucram" de acum
+    // obtinerea unui std::future care contine rezultatul taskului
     std::future<return_type> response = task->get_future();
 
-    // adaugare de scope
-    // pentru mai buna gestionare si control a alocarii variabilelor
+    // adaugare de scope pentru a reduce durata blocării mutexului
     {
         std::unique_lock<std::mutex> lock(queue_mutex);
-        // blocam accesul la coada pentru a putea adauga un task
-        // adaugarea unui task in queueu
-        // de inteles: --adaugarea prin apelarea taskului generat anterior
-        // este un make_shared, deci dereferentiem
-        // iar dupa apelam pentru ca in packaged_task este "containerizata" functia
-
+        // adaugarea unui task in queue
         this->tasks_queue.emplace([task]()
-                                  { (*task)(); });
+                                  { 
+                                      try {
+                                          (*task)(); 
+                                      } catch (...) {
+                                          // Tratăm orice excepție care ar putea apărea în timpul execuției taskului
+                                          try {
+                                              throw;
+                                          } catch (const std::exception& e) {
+                                              std::cerr << "Eroare la executarea taskului: " << e.what() << std::endl;
+                                          } catch (...) {
+                                              std::cerr << "Eroare necunoscută la executarea taskului." << std::endl;
+                                          }
+                                      }
+                                  });
     }
-    // exit scope:)
 
-    // notificare threaduri ca exista a new task in the hood*()*()*)
-    this->condition_var.notify_all();
-    return response;
+    // notificare unui singur thread că există un nou task
+    this->condition_var.notify_one();
+
+    // returnam future-ul pentru ca apelantul sa poata obtine rezultatul taskului
+
+      return response;
 }
