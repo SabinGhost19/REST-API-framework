@@ -17,6 +17,8 @@ public:
                   const std::string &path,
                   RouteCallback callback_function);
     void route(Request &req, Response &res);
+std::vector<std::string> splitPath(const std::string &path, char delimiter);
+
 };
 
 

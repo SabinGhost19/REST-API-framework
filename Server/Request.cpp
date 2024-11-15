@@ -8,6 +8,16 @@ std::string Request::GetQueryParam(const std::string &key)
     }
     return "";
 }
+void Request::SetRouteParam(const std::string key, const std::string value){
+    if (!key.empty())
+    {
+        this->routeParams[key] = value;
+    }
+    else
+    {
+        std::cout << "Warning: Trying to set an empty route parameter key." << std::endl;
+    }
+}
 std::string Request::GetHeader(const std::string &key)
 {
     if (headers.find(key) != headers.end())
@@ -25,10 +35,7 @@ std::string Request::GetRouteParam(const std::string &key)
     return "";
 }
 
-void Request::SetRouteParam(const std::string &key, const std::string &value)
-{
-    routeParams[key] = value;
-}
+
 void Request::ParseQueryParams()
 {
     size_t questionMarkPos = path.find("?");

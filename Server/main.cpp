@@ -2,7 +2,7 @@
 #include "HTTPServer.h"
 #include "Utils.h"
 #include "./models/PostgresDB.h"
-#define PORT 8082
+#define PORT 8081
 // Funcția care transformă JSON în string
 std::string jsonToString(const json &jsonObj)
 {
