@@ -144,14 +144,15 @@ int main()
 
 
     //TESTING CONNECTING TO THE POSTGRES CONTAINER!!!!!!!!!!!!!!!!!!!
+    
+    //make the connection string
     std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
-
-   
+   //init the DB providing the string
     PostgresDB db(conn_info);
     if (!db.connect()) {
         return 1; 
     }
-
+    //define some query using a string and call de exec function with it 
     std::string create_table_query = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name VARCHAR(50), age INTEGER);";
     if (!db.executeQuery(create_table_query)) {
         return 1; 
@@ -164,7 +165,7 @@ int main()
     } else {
         std::cout << "Data inserted successfully." << std::endl;
     }
-   
+   //printing the fetched data for testing
     std::vector<std::map<std::string, std::string>> results = db.getQueryResults("SELECT * FROM test_table;");
     for (const auto &row : results) {
         for (const auto &[column, value] : row) {
@@ -173,33 +174,40 @@ int main()
         std::cout << "-----------------" << std::endl;
     }
 
-    // Deconectarea de la baza de date
+    // disconnecy from the data base
     db.disconnect();
 
 
 
 
 
+    //initialize the server
+    RestServer server(PORT, 5);
+    //initialize the router
     Router *router = new Router();
+    //adding some routes........
     router->addRoute("GET", "/home", functieptGET);
     router->addRoute("GET", "/htmlFile", functionForSendingFile);
     router->addRoute("GET", "/dateAna", functieAna);
     router->addRoute("GET","/data/:id",functieIDParam);
-    RestServer server(PORT, 5);
+    
+    //apass the router with its functionalities to the server
     server.addRouter(router);
     
 
 
+
     //middwares are called sequentially
-    //it works as expected
     server.use([](Request &req, Response &res, std::function<void()> next)
                {
        std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
         next(); });
 
     server.use(functionMiddleWare);
-    // server.use(functieptGET_2);
 
+
+
+    // server.use(functieptGET_2);
     server.run();
 
     return 0;
