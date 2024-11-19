@@ -103,6 +103,17 @@ void functieIDParam(Request &req,Response&res){
     res.Content_Type(ContentType::TextPlain);
     res.Send("MERGEEEE");
 }
+static int id_nr=0;
+void functieIDParamBIG(Request &req,Response&res){
+    std::string id = req.GetRouteParam("id");
+
+    std::string response_body = "Requested data for ID: " + id;
+    res.SetStatusCode(400);
+    res.Content_Type(ContentType::TextPlain);
+    id_nr++;
+    std::cout<<"FUnctionerasd..."<<id_nr<<std::endl;
+    res.Send("--FUNCTIONEAZA.....");
+}
 void functionMiddleWare(Request &req, Response &res, std::function<void()> next)
 {
     std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
@@ -179,8 +190,6 @@ int main()
 
 
 
-
-
     //initialize the server
     RestServer server(PORT, 5);
     //initialize the router
@@ -190,11 +199,11 @@ int main()
     router->addRoute("GET", "/htmlFile", functionForSendingFile);
     router->addRoute("GET", "/dateAna", functieAna);
     router->addRoute("GET","/data/:id",functieIDParam);
+    router->addRoute("POST","/auth/register",functieIDParamBIG);
     
     //apass the router with its functionalities to the server
     server.addRouter(router);
     
-
 
 
     //middwares are called sequentially

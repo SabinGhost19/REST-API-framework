@@ -18,7 +18,7 @@ void Router::route(Request &req, Response &res)
         const std::string &route_key = route_entry.first;
         std::cout << "Original route_key: " << route_key << std::endl;
 
-        // Înlocuirea parametrilor `:param` cu un regex care să facă match pe valori
+      
         std::string route_key_regex_str = std::regex_replace(route_key, std::regex(R"(:\w+)"), "([^/]+)");
         std::regex route_regex("^" + route_key_regex_str + "$");
 
@@ -29,11 +29,11 @@ void Router::route(Request &req, Response &res)
         {
             std::cout << "Route matched: " << route_entry.first << std::endl;
 
-            // Împărțim ruta cerută și ruta definită în router pentru a obține părțile separate de `/`
+          
             std::vector<std::string> request_parts = splitPath(req.GetPath(), '/');
             std::vector<std::string> route_parts = splitPath(route_key.substr(route_key.find("/") + 1), '/');
 
-            // Parcurgem fiecare parte a rutei și extragem parametrii dinamici (prefixați cu `:`)
+            
             for (size_t i = 0; i < route_parts.size(); ++i)
             {
                 if (route_parts[i].size() > 0 && route_parts[i][0] == ':')
@@ -55,13 +55,12 @@ void Router::route(Request &req, Response &res)
                 }
             }
 
-            // Apelăm funcția de handler corespunzătoare
+            // Apelam functia de handler corespunzatoare
             route_entry.second(req, res);
             return;
         }
     }
 
-    // Dacă nu găsim niciun match, trimitem 404
     res.SetStatusCode(404);
     std::string body = "Not Found";
     res.Send(body);
@@ -75,7 +74,6 @@ std::vector<std::string> Router::splitPath(const std::string &path, char delimit
 
     while (std::getline(ss, item, delimiter))
     {
-        // Ignorăm părțile goale care pot apărea din cauza unui `/` la începutul rutei
         if (!item.empty())
         {
             parts.push_back(item);
