@@ -2,7 +2,7 @@
 #include "HTTPServer.h"
 #include "Utils.h"
 #include "./models/PostgresDB.h"
-#define PORT 8081
+#define PORT 8082
 // Funcția care transformă JSON în string
 std::string jsonToString(const json &jsonObj)
 {
@@ -114,11 +114,33 @@ void functieIDParamBIG(Request &req,Response&res){
     std::cout<<"FUnctionerasd..."<<id_nr<<std::endl;
     res.Send("--FUNCTIONEAZA.....");
 }
+
+void ClassicAuthMiddleware_withPostgres(Request&req,Response&res,std::function<void()>next){
+    
+    //interface
+    //
+    //
+    std::string body=req.GetBody();
+
+    json body_json=json::parse(body);
+
+    std::string email=body_json["email"];
+
+    std::string query = "SELECT EXISTS(SELECT 1 FROM users WHERE email = '" + email + "');";
+     if (PostgresDB::getInstance().executeQuery(query)) {
+
+        res.SetStatusCode(403);
+        res.Send("Email already exist");
+    }
+
+    next();
+}
 void functionMiddleWare(Request &req, Response &res, std::function<void()> next)
 {
     std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
     next();
 }
+
 int main()
 {
     // Apache Benchmark -testing command
@@ -157,36 +179,47 @@ int main()
     //TESTING CONNECTING TO THE POSTGRES CONTAINER!!!!!!!!!!!!!!!!!!!
     
     //make the connection string
-    std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
+   
    //init the DB providing the string
-    PostgresDB db(conn_info);
-    if (!db.connect()) {
-        return 1; 
-    }
-    //define some query using a string and call de exec function with it 
-    std::string create_table_query = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name VARCHAR(50), age INTEGER);";
-    if (!db.executeQuery(create_table_query)) {
+    std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
+    PostgresDB::getInstance(conn_info);
+  
+    if (!PostgresDB::getInstance().connect()) {
         return 1; 
     }
 
-    std::string insert_query = "INSERT INTO test_table (name, age) VALUES ('John Doe', 30);";
-    if (!db.executeQuery(insert_query)) {
+    std::string query = "TRUNCATE TABLE test_table;";
+    if (!PostgresDB::getInstance().executeQuery(query)) {
         std::cerr << "Failed to insert data into the table." << std::endl;
         return 1; 
     } else {
-        std::cout << "Data inserted successfully." << std::endl;
-    }
-   //printing the fetched data for testing
-    std::vector<std::map<std::string, std::string>> results = db.getQueryResults("SELECT * FROM test_table;");
-    for (const auto &row : results) {
-        for (const auto &[column, value] : row) {
-            std::cout << column << ": " << value << std::endl;
-        }
-        std::cout << "-----------------" << std::endl;
+        std::cout << "Data delete successfully." << std::endl;
     }
 
+
+    //define some query using a string and call de exec function with it 
+//     std::string create_table_query = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name VARCHAR(50), age INTEGER);";
+//     if (!db.executeQuery(create_table_query)) {
+//         return 1; 
+//     }
+
+//     std::string insert_query = "INSERT INTO test_table (name, age) VALUES ('John Doe', 30);";
+//     if (!db.executeQuery(insert_query)) {
+//         std::cerr << "Failed to insert data into the table." << std::endl;
+//         return 1; 
+//     } else {
+//         std::cout << "Data inserted successfully." << std::endl;
+//     }
+//    //printing the fetched data for testing
+//     std::vector<std::map<std::string, std::string>> results = db.getQueryResults("SELECT * FROM test_table;");
+//     for (const auto &row : results) {
+//         for (const auto &[column, value] : row) {
+//             std::cout << column << ": " << value << std::endl;
+//         }
+//         std::cout << "-----------------" << std::endl;
+//     }
+
     // disconnecy from the data base
-    db.disconnect();
 
 
 
@@ -199,8 +232,20 @@ int main()
     router->addRoute("GET", "/htmlFile", functionForSendingFile);
     router->addRoute("GET", "/dateAna", functieAna);
     router->addRoute("GET","/data/:id",functieIDParam);
-    router->addRoute("POST","/auth/register",functieIDParamBIG);
+    router->addRoute("GET","/auth/register",functieIDParamBIG);
     
+    router->addRoute("POST","/post",[](Request&req,Response&res){
+
+        std::string body=req.GetBody();
+        json body_json=json::parse(body);
+        std::cout<<"Json primit prin POST"<<body_json<<std::endl;
+
+        std::string name=body_json["name"];
+        std::cout<<"NUmele este...."<<name<<std::endl;
+
+        res.SetStatusCode(200);
+        res.Send(json({{"Name","Bogdan"}}));
+    });
     //apass the router with its functionalities to the server
     server.addRouter(router);
     
@@ -219,5 +264,6 @@ int main()
     // server.use(functieptGET_2);
     server.run();
 
+    PostgresDB::getInstance().disconnect();
     return 0;
 }

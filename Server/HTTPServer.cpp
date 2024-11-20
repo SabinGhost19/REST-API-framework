@@ -42,7 +42,6 @@ void RestServer::addRouter(Router *_router)
 }
 void RestServer::use(MiddleWare::MidW_Handler middleWare_function)
 {
-
     // add the middleWare in the middleWares functional pool
     this->middleWare->use_this_middleWare(middleWare_function);
 }
