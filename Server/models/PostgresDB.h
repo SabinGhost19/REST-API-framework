@@ -49,7 +49,6 @@
 
 
 
-
 #ifndef POSTGRES_DB_H
 #define POSTGRES_DB_H
 
@@ -68,8 +67,12 @@ public:
     bool connect()override;
     void disconnect()override;
     bool executeQuery(const std::string& query)override;
-    std::vector<std::map<std::string, std::string>> getQueryResults(const std::string& query);
-    
+    std::vector<std::map<std::string, std::string>> getQueryResults(const std::string& query)override;
+
+    static std::unique_ptr<PostgresDB> create(const std::string& conn_info) {
+        return std::unique_ptr<PostgresDB>(new PostgresDB(conn_info));
+    }
+
     static PostgresDB& getInstance(const std::string& conn_info = "") {
         static std::once_flag initInstanceFlag;
         std::call_once(initInstanceFlag, [&]() {
@@ -97,10 +100,10 @@ public:
 
 
 private:
-    PostgresDB(const std::string& conn_info) : connection_info(conn_info), conn(nullptr) {
-        connect();
-    }
 
+    PostgresDB(const std::string& conn_info) : connection_info(conn_info), conn(nullptr) {
+        //connect();
+    }
     std::string connection_info;
     PGconn *conn;
 

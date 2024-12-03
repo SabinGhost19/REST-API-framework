@@ -1,9 +1,9 @@
 #ifndef USERREPOSITORY_H
 #define USERREPOSITORY_H
 
-#include "IRepository.h"
+#include "../IRepository.h"
 #include "IGenericDatabase.h"
-#include "User.h"
+#include "../../concrete_Class/User.h"
 #include <memory>
 
 class UserRepository : public IRepository<User> {
@@ -12,7 +12,7 @@ private:
 
 public:
     explicit UserRepository(std::shared_ptr<IGenericDatabase> db) : database(std::move(db)) {}
-
+    
     bool add(const User &user) override; 
     bool update(const User &user) override; 
     bool remove(int id) override ;

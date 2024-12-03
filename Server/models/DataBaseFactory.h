@@ -4,7 +4,7 @@
 #include "IGenericDatabase.h"
 #include"PostgresDB.h"
 #include <memory>
-#include"Utils.h"
+#include"../Utils.h"
 
 class DatabaseFactory {
 public:
@@ -13,7 +13,8 @@ public:
             switch(type){
                 case DataBase_Type::Postgres:
                 {
-                    return std::make_unique<PostgresDB>(conn_info);
+                    //OR : std::make_unique<PostgresDB>(conn_info);
+                    return PostgresDB::create(conn_info);
                     break;
                 }
                 case DataBase_Type::MySQL:

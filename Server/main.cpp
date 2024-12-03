@@ -4,7 +4,7 @@
 #include "./models/PostgresDB.h"
 #include"models/DataBaseFactory.h"
 #include"models/PostgresDB.h"
-#include"repository/userRepostory/UserRepository.h"
+#include"repository/userRepository/UserRepository.h"
 
 #define PORT 8082
 // Funcția care transformă JSON în string
@@ -188,32 +188,32 @@ int main()
     //make the connection string
    
    //init the DB providing the string
-    std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
-    PostgresDB::getInstance(conn_info);
+    // std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
+    // PostgresDB::getInstance(conn_info);
   
-    if (!PostgresDB::getInstance().connect()) {
-        return 1; 
-    }
+    // if (!PostgresDB::getInstance().connect()) {
+    //     return 1; 
+    // }
 
-    std::string query = "TRUNCATE TABLE test_table;";
-    if (!PostgresDB::getInstance().executeQuery(query)) {
-        std::cerr << "Failed to insert data into the table." << std::endl;
-        return 1; 
-    } else {
-        std::cout << "Data delete successfully." << std::endl;
-    }
-
-
+    // std::string query = "TRUNCATE TABLE test_table;";
+    // if (!PostgresDB::getInstance().executeQuery(query)) {
+    //     std::cerr << "Failed to insert data into the table." << std::endl;
+    //     return 1; 
+    // } else {
+    //     std::cout << "Data delete successfully." << std::endl;
+    // }
 
 
-    auto my_data_base=DatabaseFactory::createDatabase(DataBase_Type::Postgres,"conn");
+
+    std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
+    auto my_data_base=DatabaseFactory::createDatabase(DataBase_Type::Postgres,conn_info);
 
     if(!my_data_base->connect()){
         return 1;
     }
 
     //make shared for to be mem effic
-    auto repo=std::make_shared<UserRepository>(my_data_base);
+    auto repo=std::make_shared<UserRepository>(std::move(my_data_base));
 
     std::string email = "example@example.com";
         if (repo->emailExists(email)) {
@@ -223,8 +223,14 @@ int main()
         }
 
         // Deconectarea bazei de date
-        my_data_base->disconnect();
-        
+    std::cout<<"Deconnecting from the DataBase....\n";
+    //DECONECTAREA SE FACE AUTOMATA
+    // LA DESTRUCTOR.... IN REPO care este un UNIQUE_POINTER....
+     //!!!!!!!!!!!!!!!!!!!!!!!!!!!1   
+
+
+
+
     //define some query using a string and call de exec function with it 
 //     std::string create_table_query = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name VARCHAR(50), age INTEGER);";
 //     if (!db.executeQuery(create_table_query)) {

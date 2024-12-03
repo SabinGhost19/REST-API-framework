@@ -1,12 +1,5 @@
 #include "PostgresDB.h"
 
-PostgresDB::PostgresDB(const std::string& conn_info)
-    : connection_info(conn_info), conn(nullptr) {}
-
-PostgresDB::~PostgresDB() {
-    disconnect();
-}
-
 bool PostgresDB::connect() {
     conn = PQconnectdb(connection_info.c_str());
     if (PQstatus(conn) != CONNECTION_OK) {
