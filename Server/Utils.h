@@ -16,16 +16,20 @@ enum class ContentType
 
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
+enum class DataBase_Type{
+    MySQL,
+    Postgres,
+};
 
 enum class ConnectionType
 {
     Close,
     KeepAlive,
-    Upgrade // Conexiunea este cu upgrade (de exemplu, WebSocket)
+    Upgrade 
 };
 
 std::string getContentTypeHeader(ContentType type);
 std::string getConnectionHeader(ConnectionType type);
 std::string getStatusMessage(int code);
 
-#endif // UTILS_H
+#endif 

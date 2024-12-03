@@ -2,6 +2,10 @@
 #include "HTTPServer.h"
 #include "Utils.h"
 #include "./models/PostgresDB.h"
+#include"models/DataBaseFactory.h"
+#include"models/PostgresDB.h"
+#include"repository/userRepostory/UserRepository.h"
+
 #define PORT 8082
 // Funcția care transformă JSON în string
 std::string jsonToString(const json &jsonObj)
@@ -176,6 +180,9 @@ int main()
     //
 
 
+
+
+
     //TESTING CONNECTING TO THE POSTGRES CONTAINER!!!!!!!!!!!!!!!!!!!
     
     //make the connection string
@@ -197,6 +204,27 @@ int main()
     }
 
 
+
+
+    auto my_data_base=DatabaseFactory::createDatabase(DataBase_Type::Postgres,"conn");
+
+    if(!my_data_base->connect()){
+        return 1;
+    }
+
+    //make shared for to be mem effic
+    auto repo=std::make_shared<UserRepository>(my_data_base);
+
+    std::string email = "example@example.com";
+        if (repo->emailExists(email)) {
+            std::cout << "Email already exists in the database." << std::endl;
+        } else {
+            std::cout << "Email does not exist in the database." << std::endl;
+        }
+
+        // Deconectarea bazei de date
+        my_data_base->disconnect();
+        
     //define some query using a string and call de exec function with it 
 //     std::string create_table_query = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name VARCHAR(50), age INTEGER);";
 //     if (!db.executeQuery(create_table_query)) {

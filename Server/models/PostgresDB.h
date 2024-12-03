@@ -50,7 +50,6 @@
 
 
 
-
 #ifndef POSTGRES_DB_H
 #define POSTGRES_DB_H
 
@@ -61,10 +60,16 @@
 #include <memory>
 #include <iostream>
 #include <mutex>
+#include"IGenericDatabase.h"
 
-class PostgresDB {
+class PostgresDB : public IGenericDatabase{
 public:
-    // Obține instanța Singleton, inițializând-o dacă este necesar
+
+    bool connect()override;
+    void disconnect()override;
+    bool executeQuery(const std::string& query)override;
+    std::vector<std::map<std::string, std::string>> getQueryResults(const std::string& query);
+    
     static PostgresDB& getInstance(const std::string& conn_info = "") {
         static std::once_flag initInstanceFlag;
         std::call_once(initInstanceFlag, [&]() {
@@ -81,7 +86,7 @@ public:
         return *instance;
     }
 
-    // Interzicerea copiei și alocării (pentru a păstra Singleton-ul)
+ 
     PostgresDB(const PostgresDB&) = delete;
     PostgresDB(PostgresDB&&) = delete;
     PostgresDB& operator=(const PostgresDB&) = delete;
@@ -90,13 +95,8 @@ public:
         disconnect();
     }
 
-    bool connect();
-    void disconnect();
-    bool executeQuery(const std::string& query);
-    std::vector<std::map<std::string, std::string>> getQueryResults(const std::string& query);
 
 private:
-    // Constructor privat
     PostgresDB(const std::string& conn_info) : connection_info(conn_info), conn(nullptr) {
         connect();
     }
@@ -105,9 +105,7 @@ private:
     PGconn *conn;
 
     void checkConnection();
-
-    // Instanță Singleton
     inline static std::unique_ptr<PostgresDB> instance = nullptr;
 };
 
-#endif // POSTGRES_DB_H
+#endif 
