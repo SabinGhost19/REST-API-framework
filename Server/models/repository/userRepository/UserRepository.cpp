@@ -19,7 +19,6 @@
     User UserRepository::getById(int id)  {
         std::string query = "SELECT * FROM users WHERE id = " + std::to_string(id) + ";";
         auto results = database->getQueryResults(query);
-
         if (!results.empty()) {
             auto &row = results[0];
             return User(std::stoi(row["id"]), row["name"], row["email"]);

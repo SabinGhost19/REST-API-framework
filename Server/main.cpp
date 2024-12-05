@@ -141,7 +141,7 @@ void ClassicAuthMiddleware_withPostgres(Request&req,Response&res,std::function<v
 }
 void functionMiddleWare(Request &req, Response &res, std::function<void()> next)
 {
-    std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
+    std::cout << "Middleware: Received a API API API API!! " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
     next();
 }
 
@@ -187,7 +187,7 @@ int main()
     
     //make the connection string
    
-   //init the DB providing the string
+    //init the DB providing the string
     // std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
     // PostgresDB::getInstance(conn_info);
   
@@ -214,8 +214,8 @@ int main()
 
     //make shared for to be mem effic
     auto repo=std::make_shared<UserRepository>(std::move(my_data_base));
-
-    std::string email = "example@example.com";
+   
+    std::string email = "sabinstan19@gmail.com";
         if (repo->emailExists(email)) {
             std::cout << "Email already exists in the database." << std::endl;
         } else {
@@ -253,7 +253,7 @@ int main()
 //         std::cout << "-----------------" << std::endl;
 //     }
 
-    // disconnecy from the data base
+    // disconnect from the data base
 
 
 
@@ -267,6 +267,7 @@ int main()
     router->addRoute("GET", "/dateAna", functieAna);
     router->addRoute("GET","/data/:id",functieIDParam);
     router->addRoute("GET","/auth/register",functieIDParamBIG);
+    router->addRoute("GET","/api",functieIDParamBIG);
     
     router->addRoute("POST","/post",[](Request&req,Response&res){
 
@@ -291,13 +292,43 @@ int main()
        std::cout << "Middleware: Received a " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
         next(); });
 
-    server.use(functionMiddleWare);
-
+    server.use("/api",functionMiddleWare);
 
 
     // server.use(functieptGET_2);
     server.run();
 
     PostgresDB::getInstance().disconnect();
+
+    // sa verific daca merg toate get post put patch delete
+    // logger pentru middleware
+    //middleware pentru auteitficare
+    //in headerul authentification sa iau email si parola
+    //sa ii dau un fisier sau un strig middleware-ului si acesta sa poata 
+    //verifica daca userul exista sau nu 
+
+    //asta ar trebui sa presupuna middleware format din rute
+    //pentru un endpoint specific sa fie un middleware
+
+
+    
+    //sa mai adaug mai multe metode pentur baza de date
+    //mai multe metode generice
+    //raman la conceptul de IRespository dispus developerului
+    //si UserRepository de exemplu este cel facut de mine 
+    //!!!!!!!!!!!!!!
+    //sa modific neaparat la acele query-uri ale apelului de baza de date
+    //stringurile sa nu fie cu in clar
+    //si sa fie cu un apel specific ,
+    //este o functie in libraria aceea
+    //pentru prevenire sql injection 
+
+
+    //!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    //sa fac eu de mana toate thredurile
+    //multithreading 
+    //sa le fac iar de la 0 si sa fac cu threaduri eu de mana ca in c
+    
+    //loggers facute pentru fiecare request primit 
     return 0;
 }

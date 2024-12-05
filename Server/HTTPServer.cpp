@@ -45,7 +45,11 @@ void RestServer::use(MiddleWare::MidW_Handler middleWare_function)
     // add the middleWare in the middleWares functional pool
     this->middleWare->use_this_middleWare(middleWare_function);
 }
-
+void RestServer::use(std::string endpoint,MiddleWare::MidW_Handler middleWare_function)
+{
+    // add the middleWare in the middleWares functional pool
+    this->middleWare->use_this_specific_middleWare(endpoint,middleWare_function);
+}
 void RestServer::run()
 {
     std::cout << "Server is listening on port " << this->port << std::endl;
