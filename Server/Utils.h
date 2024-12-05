@@ -27,7 +27,7 @@ enum class ConnectionType
     KeepAlive,
     Upgrade 
 };
-
+std::string base64_decode(const std::string &encoded_string);
 std::string getContentTypeHeader(ContentType type);
 std::string getConnectionHeader(ConnectionType type);
 std::string getStatusMessage(int code);

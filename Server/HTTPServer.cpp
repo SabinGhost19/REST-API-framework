@@ -40,6 +40,10 @@ void RestServer::addRouter(Router *_router)
 {
     this->router = _router;
 }
+void RestServer::setAuthEmails(std::vector<std::string>vec){
+    this->middleWare->setAuthEmails(std::move(vec));
+}
+
 void RestServer::use(MiddleWare::MidW_Handler middleWare_function)
 {
     // add the middleWare in the middleWares functional pool
@@ -49,6 +53,9 @@ void RestServer::use(std::string endpoint,MiddleWare::MidW_Handler middleWare_fu
 {
     // add the middleWare in the middleWares functional pool
     this->middleWare->use_this_specific_middleWare(endpoint,middleWare_function);
+}
+void RestServer::useSimpleAuthMiddleware(std::string endpoint){
+    this->middleWare->use_this_specific_middleWare(endpoint,this->middleWare->authentication_middleware);
 }
 void RestServer::run()
 {

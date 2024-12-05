@@ -283,6 +283,10 @@ int main()
     });
     //apass the router with its functionalities to the server
     server.addRouter(router);
+
+    std::vector<std::string>emails;
+    emails.push_back("sabinstan19@gmail.com");
+    server.setAuthEmails(emails);
     
 
 

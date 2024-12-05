@@ -22,6 +22,8 @@ public:
     void run();
     void use(MiddleWare::MidW_Handler middleWare_function);
     void use(std::string endpoint,MiddleWare::MidW_Handler middleWare_function);
+    void setAuthEmails(std::vector<std::string>vec);
+    void useSimpleAuthMiddleware(std::string endpoint);
     int nr_of_requests = 0;
 
 private:
