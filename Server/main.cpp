@@ -212,9 +212,21 @@ int main()
         return 1;
     }
 
-    //make shared for to be mem effic
+    //PGconn specify the type of connection to the DataBase
     auto repo=std::make_shared<UserRepository>(std::move(my_data_base));
-   
+
+    User new_user=User(2,"sabin","sabinstan19@gmail.com");
+    try{
+        if(repo->add(new_user)){
+                std::cout << "User added to the database!!!" << std::endl;
+        }
+        return 0;
+    }catch (const std::exception& ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+        return 1;
+    }
+
+
     std::string email = "sabinstan19@gmail.com";
         if (repo->emailExists(email)) {
             std::cout << "Email already exists in the database." << std::endl;

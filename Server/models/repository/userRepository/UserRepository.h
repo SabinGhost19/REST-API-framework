@@ -8,10 +8,10 @@
 
 class UserRepository : public IRepository<User> {
 private:
-    std::shared_ptr<IGenericDatabase> database;
+    std::shared_ptr<IGenericDatabase<PGconn>> database;
 
 public:
-    explicit UserRepository(std::shared_ptr<IGenericDatabase> db) : database(std::move(db)) {}
+    explicit UserRepository(std::shared_ptr<IGenericDatabase<PGconn>> db) : database(std::move(db)) {}
     
     bool add(const User &user) override; 
     bool update(const User &user) override; 

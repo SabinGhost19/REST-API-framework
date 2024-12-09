@@ -1,5 +1,10 @@
 #include "PostgresDB.h"
 
+
+PGconn*PostgresDB::getConnection(){
+    if(this->conn){return this->conn;}
+    return nullptr;
+}
 bool PostgresDB::connect() {
     conn = PQconnectdb(connection_info.c_str());
     if (PQstatus(conn) != CONNECTION_OK) {

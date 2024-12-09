@@ -61,7 +61,7 @@
 #include <mutex>
 #include"IGenericDatabase.h"
 
-class PostgresDB : public IGenericDatabase{
+class PostgresDB : public IGenericDatabase<PGconn>{
 public:
 
     bool connect()override;
@@ -88,7 +88,8 @@ public:
 
         return *instance;
     }
-
+    
+    PGconn*getConnection();
  
     PostgresDB(const PostgresDB&) = delete;
     PostgresDB(PostgresDB&&) = delete;

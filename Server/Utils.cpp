@@ -108,6 +108,11 @@ static const std::string base64_chars =
              "abcdefghijklmnopqrstuvwxyz"
              "0123456789+/";
              
+// Functie auxiliară pentru verificarea caracterelor validate base64
+inline bool is_base64(unsigned char c)
+{
+    return (isalnum(c) || (c == '+') || (c == '/'));
+}
 // Functie pentru decodificarea unui string base64
 std::string base64_decode(const std::string &encoded_string)
 {
@@ -150,8 +155,3 @@ std::string base64_decode(const std::string &encoded_string)
     return ret;
 }
 
-// Functie auxiliară pentru verificarea caracterelor validate base64
-inline bool is_base64(unsigned char c)
-{
-    return (isalnum(c) || (c == '+') || (c == '/'));
-}

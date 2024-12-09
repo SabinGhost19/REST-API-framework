@@ -55,7 +55,9 @@ void RestServer::use(std::string endpoint,MiddleWare::MidW_Handler middleWare_fu
     this->middleWare->use_this_specific_middleWare(endpoint,middleWare_function);
 }
 void RestServer::useSimpleAuthMiddleware(std::string endpoint){
-    this->middleWare->use_this_specific_middleWare(endpoint,this->middleWare->authentication_middleware);
+    this->middleWare->use_this_specific_middleWare(endpoint, [this](Request& req, Response& res, std::function<void()> next) {
+        this->middleWare->authentication_middleware(req, res, next);
+    });
 }
 void RestServer::run()
 {

@@ -8,7 +8,7 @@
 
 class DatabaseFactory {
 public:
-    static std::unique_ptr<IGenericDatabase> createDatabase(const DataBase_Type &type, const std::string &conn_info) {
+    static std::unique_ptr<IGenericDatabase<PGconn>> createDatabase(const DataBase_Type &type, const std::string &conn_info) {
         
             switch(type){
                 case DataBase_Type::Postgres:

@@ -41,7 +41,7 @@ public:
     void use_this_specific_middleWare(std::string endpoint, MidW_Handler mid_function)
     {
         vector_of_specific_middleWares[endpoint] = mid_function;
-    }
+    };
 
     void use_this_middleWare(MidW_Handler mid_function)
     {
