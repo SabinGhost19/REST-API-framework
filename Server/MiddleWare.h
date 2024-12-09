@@ -97,7 +97,6 @@ public:
           
             if (std::find(vec_of_emails.begin(), vec_of_emails.end(), email) != vec_of_emails.end())
             {
-                
                 next();
             }
             else

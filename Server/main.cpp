@@ -118,7 +118,9 @@ void functieIDParamBIG(Request &req,Response&res){
     std::cout<<"FUnctionerasd..."<<id_nr<<std::endl;
     res.Send("--FUNCTIONEAZA.....");
 }
-
+void LoginHandler(Request&req,Response&res){
+    std::cout<<req.GetBody()<<"SI AUTH: "<<req.GetHeader("Authorization")<<" Lungime: "<<req.GetHeader("Content-Length")<<std::endl;
+}
 void ClassicAuthMiddleware_withPostgres(Request&req,Response&res,std::function<void()>next){
     
     //interface
@@ -205,6 +207,12 @@ int main()
 
 
 
+
+
+
+
+
+
     std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
     auto my_data_base=DatabaseFactory::createDatabase(DataBase_Type::Postgres,conn_info);
 
@@ -215,27 +223,33 @@ int main()
     //PGconn specify the type of connection to the DataBase
     auto repo=std::make_shared<UserRepository>(std::move(my_data_base));
 
-    User new_user=User(2,"sabin","sabinstan19@gmail.com");
-    try{
-        if(repo->add(new_user)){
-                std::cout << "User added to the database!!!" << std::endl;
-        }
-        return 0;
-    }catch (const std::exception& ex) {
-        std::cerr << "Error: " << ex.what() << std::endl;
-        return 1;
-    }
+    // User new_user=User(2,"sabin","sabinstan19@gmail.com");
+    // try{
+    //     if(repo->add(new_user)){
+    //             std::cout << "User added to the database!!!" << std::endl;
+    //     }
+    //     return 0;
+    // }catch (const std::exception& ex) {
+    //     std::cerr << "Error: " << ex.what() << std::endl;
+    //     return 1;
+    // }
 
 
-    std::string email = "sabinstan19@gmail.com";
-        if (repo->emailExists(email)) {
-            std::cout << "Email already exists in the database." << std::endl;
-        } else {
-            std::cout << "Email does not exist in the database." << std::endl;
-        }
+    // std::string email = "sabinstan19@gmail.com";
+    //     if (repo->emailExists(email)) {
+    //         std::cout << "Email already exists in the database." << std::endl;
+    //     } else {
+    //         std::cout << "Email does not exist in the database." << std::endl;
+    //     }
 
-        // Deconectarea bazei de date
-    std::cout<<"Deconnecting from the DataBase....\n";
+    //     // Deconectarea bazei de date
+    // std::cout<<"Deconnecting from the DataBase....\n";
+
+
+
+
+
+
     //DECONECTAREA SE FACE AUTOMATA
     // LA DESTRUCTOR.... IN REPO care este un UNIQUE_POINTER....
      //!!!!!!!!!!!!!!!!!!!!!!!!!!!1   
@@ -279,7 +293,7 @@ int main()
     router->addRoute("GET", "/dateAna", functieAna);
     router->addRoute("GET","/data/:id",functieIDParam);
     router->addRoute("GET","/auth/register",functieIDParamBIG);
-    router->addRoute("GET","/api",functieIDParamBIG);
+    router->addRoute("GET","/login",LoginHandler);
     
     router->addRoute("POST","/post",[](Request&req,Response&res){
 
@@ -310,7 +324,12 @@ int main()
 
     server.use("/api",functionMiddleWare);
 
+    std::vector<std::string>auth_emails;
+    auth_emails.push_back("sabinstan19@gmail.com");
+    auth_emails.push_back("florentincondur100@gmail.com");
 
+    server.setAuthEmails(auth_emails);
+    server.useSimpleAuthMiddleware("/login");
     // server.use(functieptGET_2);
     server.run();
 
