@@ -4,7 +4,7 @@ void Router::addRoute(const std::string &method,
                       const std::string &path,
                       RouteCallback callback_function)
 {
-     std::string key = method + path;
+    std::string key = method + path;
     routes[key] = callback_function;
     std::cout << "Ruta adăugată: " << key << std::endl;
 }

@@ -89,6 +89,18 @@ void RestServer::run()
                                               std::pair<Request,Response>populated_pair=this->receiveTheRequest(client_fd);
                                               Request req=populated_pair.first;
                                               Response res=populated_pair.second;
+                                               if (req.GetMethod() == "OPTIONS")
+                                                {
+                                                   res.SetHeader("Access-Control-Allow-Origin", "*"); // Sau specifică originea exactă
+                                                    res.SetHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+                                                    res.SetHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+                                                    
+                                                    // Răspunde cu status 200 OK
+                                                    res.SetStatusCode(200);
+                                                    res.Send(""); // Răspuns gol
+                                                    return; // Oprește procesarea cererii
+                                                }
+
                                               std::cout<<".................."<<req.GetMethod()<<"CALEEEEEAAAAAAAAAAAAAAAAAAAAAAA\n";
                                               this->middleWare->execute_middleWares(req, res, [this, &req, &res, client_fd]()
                                                                                     {

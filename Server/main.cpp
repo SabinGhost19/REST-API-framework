@@ -7,46 +7,8 @@
 #include"repository/userRepository/UserRepository.h"
 
 #define PORT 8082
-// Funcția care transformă JSON în string
-std::string jsonToString(const json &jsonObj)
-{
-    try
-    {
-        // Serializarea obiectului JSON într-un string
-        return jsonObj.dump();
-    }
-    catch (const std::exception &e)
-    {
-        std::cerr << "Eroare la serializarea JSON-ului: " << e.what() << std::endl;
-        return "";
-    }
-}
-std::string createHttpRequest(const std::string &method, const std::string &uri, const std::string &http_version,
-                              const std::map<std::string, std::string> &headers, const json &jsonBody = {})
-{
-    std::ostringstream request;
 
-    // 1. Linia de start: METHOD URI HTTP_VERSION
-    request << method << " " << uri << " " << http_version << "\r\n";
 
-    // 2. Headerele
-    for (const auto &header : headers)
-    {
-        request << header.first << ": " << header.second << "\r\n";
-    }
-
-    // 3. Linia goală care indică sfârșitul headerelor
-    request << "\r\n";
-
-    // 4. Corpul (dacă există)
-    if (!jsonBody.empty())
-    {
-        std::string body = jsonToString(jsonBody);
-        request << body;
-    }
-
-    return request.str();
-}
 
 void functieptGET(Request &req, Response &res)
 {
@@ -72,6 +34,8 @@ void functieptGET(Request &req, Response &res)
     // res.Send(string_my);
 }
 
+
+
 void functionForSendingFile(Request &req, Response &res)
 {
     if (req.GetMethod() == "GET" && req.GetPath() == "/htmlFile")
@@ -90,6 +54,9 @@ void functionForSendingFile(Request &req, Response &res)
 
     res.Send(jsonBody);
 }
+
+
+
 void functieAna(Request &req, Response &res)
 {
     res.Content_Type(ContentType::TextPlain);
@@ -99,14 +66,20 @@ void functieAna(Request &req, Response &res)
 
     res.Send("Ana sunt eu");
 }
+
+
+
 void functieIDParam(Request &req,Response&res){
     std::string id = req.GetRouteParam("id");
 
     std::string response_body = "Requested data for ID: " + id;
     res.SetStatusCode(200);
     res.Content_Type(ContentType::TextPlain);
-    res.Send("MERGEEEE");
+    res.Send("IT WORKS");
 }
+
+
+
 static int id_nr=0;
 void functieIDParamBIG(Request &req,Response&res){
     std::string id = req.GetRouteParam("id");
@@ -117,10 +90,23 @@ void functieIDParamBIG(Request &req,Response&res){
     id_nr++;
     std::cout<<"FUnctionerasd..."<<id_nr<<std::endl;
     res.Send("--FUNCTIONEAZA.....");
-}
+} 
+
+
+
 void LoginHandler(Request&req,Response&res){
     std::cout<<req.GetBody()<<"SI AUTH: "<<req.GetHeader("Authorization")<<" Lungime: "<<req.GetHeader("Content-Length")<<std::endl;
+    res.Send("--FUNCTIONEAZA.....");
 }
+
+
+
+void APIEndpointHandler(Request&req,Response&res){
+    res.Send("--FUNCTIONEAZA.....API.....");
+}
+
+
+
 void ClassicAuthMiddleware_withPostgres(Request&req,Response&res,std::function<void()>next){
     
     //interface
@@ -141,53 +127,25 @@ void ClassicAuthMiddleware_withPostgres(Request&req,Response&res,std::function<v
 
     next();
 }
+
+
+
 void functionMiddleWare(Request &req, Response &res, std::function<void()> next)
 {
     std::cout << "Middleware: Received a API API API API!! " << req.GetMethod() << " request for " << req.GetPath() << std::endl;
     next();
 }
 
+
+
 int main()
 {
-    // Apache Benchmark -testing command
-    // ab -n 100 -c 10 http://localhost:8081/home
-    // ab -n 100 -c 2 -s 60 http://localhost:8081/home
-    //...not working...????????
-
+    
     // httperf:
     // httperf --server localhost --port 8081 --uri /home --num-conns 1500 --rate 50
     //----meaning: 50 pe second
 
-    // classic testing
-    // curl http://localhost:8081/home
-
-    //
-    // am mai inceput si trebuie continuat:
-    // testare cereri direct din browser
-    //
-    //
-    // FUTURE IDEEAS:
-    // redis sau propriul sistem de cache????
-    // https://github.com/sewenew/redis-plus-plus
-    // client redis++ repo ----
-
-    //  prioritizare  utilizatori autentificati sau cu rol premium
-    //---stocare nr cereri per ip sau token pentru asta????
-    //
-    // routing flexibil si dinamic folosind regex???
-    //
-    // advanced logging sistem!!!!!!!
-
-    /// suport pentru task scheduling si background jobs?????
-    //
-
-
-
-
-
-    //TESTING CONNECTING TO THE POSTGRES CONTAINER!!!!!!!!!!!!!!!!!!!
-    
-    //make the connection string
+   
    
     //init the DB providing the string
     // std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
@@ -206,13 +164,6 @@ int main()
     // }
 
 
-
-
-
-
-
-
-
     std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
     auto my_data_base=DatabaseFactory::createDatabase(DataBase_Type::Postgres,conn_info);
 
@@ -223,27 +174,34 @@ int main()
     //PGconn specify the type of connection to the DataBase
     auto repo=std::make_shared<UserRepository>(std::move(my_data_base));
 
-    // User new_user=User(2,"sabin","sabinstan19@gmail.com");
-    // try{
-    //     if(repo->add(new_user)){
-    //             std::cout << "User added to the database!!!" << std::endl;
-    //     }
-    //     return 0;
-    // }catch (const std::exception& ex) {
-    //     std::cerr << "Error: " << ex.what() << std::endl;
-    //     return 1;
-    // }
+    //eu pun la dispozitie doar IRepository si DatabaseFactory pentru Postgres si MySQL
+    //este de natura developerului sa iti creez clase concrete precum UserRepository 
+    //si alege sa foloseasca deja metodele din IRepository sau sa implementeze altele
+    //daca nu satisfac
 
 
-    // std::string email = "sabinstan19@gmail.com";
-    //     if (repo->emailExists(email)) {
-    //         std::cout << "Email already exists in the database." << std::endl;
-    //     } else {
-    //         std::cout << "Email does not exist in the database." << std::endl;
-    //     }
+    User new_user=User(2,"sabin","sabinstan19@gmail.com","pass");
 
-    //     // Deconectarea bazei de date
-    // std::cout<<"Deconnecting from the DataBase....\n";
+    try{
+        if(repo->add(new_user)){
+                std::cout << "User added to the database!!!" << std::endl;
+        }
+        return 0;
+    }catch (const std::exception& ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+        return 1;
+    }
+
+
+    std::string email = "sabinstan19@gmail.com";
+        if (repo->emailExists(email)) {
+            std::cout << "Email already exists in the database." << std::endl;
+        } else {
+            std::cout << "Email does not exist in the database." << std::endl;
+        }
+
+        // Deconectarea bazei de date
+    std::cout<<"Deconnecting from the DataBase....\n";
 
 
 
@@ -257,6 +215,8 @@ int main()
 
 
 
+
+//----------------------------------------____??????????????????????????????????
     //define some query using a string and call de exec function with it 
 //     std::string create_table_query = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name VARCHAR(50), age INTEGER);";
 //     if (!db.executeQuery(create_table_query)) {
@@ -280,6 +240,10 @@ int main()
 //     }
 
     // disconnect from the data base
+//------------------------------------______???????????????????????????????????????
+
+
+
 
 
 
@@ -287,14 +251,19 @@ int main()
     RestServer server(PORT, 5);
     //initialize the router
     Router *router = new Router();
-    //adding some routes........
+    //adding routes........
     router->addRoute("GET", "/home", functieptGET);
     router->addRoute("GET", "/htmlFile", functionForSendingFile);
     router->addRoute("GET", "/dateAna", functieAna);
     router->addRoute("GET","/data/:id",functieIDParam);
     router->addRoute("GET","/auth/register",functieIDParamBIG);
     router->addRoute("GET","/login",LoginHandler);
-    
+
+    router->addRoute("GET","/api",APIEndpointHandler);
+    router->addRoute("POST","/api",APIEndpointHandler);
+    router->addRoute("PUT","/api",APIEndpointHandler);
+
+
     router->addRoute("POST","/post",[](Request&req,Response&res){
 
         std::string body=req.GetBody();
@@ -307,7 +276,7 @@ int main()
         res.SetStatusCode(200);
         res.Send(json({{"Name","Bogdan"}}));
     });
-    //apass the router with its functionalities to the server
+    //pass the router with its functionalities to the server
     server.addRouter(router);
 
     std::vector<std::string>emails;
@@ -327,32 +296,39 @@ int main()
     std::vector<std::string>auth_emails;
     auth_emails.push_back("sabinstan19@gmail.com");
     auth_emails.push_back("florentincondur100@gmail.com");
+    auth_emails.push_back("test@example.com");
+
+    
 
     server.setAuthEmails(auth_emails);
+    //ADDED LOGGER FILE for loging the emailss
     server.useSimpleAuthMiddleware("/login");
     // server.use(functieptGET_2);
     server.run();
 
     PostgresDB::getInstance().disconnect();
 
-    // sa verific daca merg toate get post put patch delete
-    // logger pentru middleware
-    //middleware pentru auteitficare
-    //in headerul authentification sa iau email si parola
-    //sa ii dau un fisier sau un strig middleware-ului si acesta sa poata 
-    //verifica daca userul exista sau nu 
 
-    //asta ar trebui sa presupuna middleware format din rute
-    //pentru un endpoint specific sa fie un middleware
+
+
+    // ??????????sa verific daca merg toate get post put patch delete
+    // ?????????logger pentru middleware
+    // ____middleware pentru auteitficare
+    //____in headerul authentification sa iau email si parola
+    //____sa ii dau un fisier sau un strig middleware-ului si acesta sa poata 
+    //___verifica daca userul exista sau nu 
+
+    //___asta ar trebui sa presupuna middleware format din rute
+    //___pentru un endpoint specific sa fie un middleware
 
 
     
-    //sa mai adaug mai multe metode pentur baza de date
-    //mai multe metode generice
+    //?????????sa mai adaug mai multe metode pentur baza de date
+    //?????????mai multe metode generice
     //raman la conceptul de IRespository dispus developerului
     //si UserRepository de exemplu este cel facut de mine 
     //!!!!!!!!!!!!!!
-    //sa modific neaparat la acele query-uri ale apelului de baza de date
+    //??????????sa modific neaparat la acele query-uri ale apelului de baza de date
     //stringurile sa nu fie cu in clar
     //si sa fie cu un apel specific ,
     //este o functie in libraria aceea

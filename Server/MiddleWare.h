@@ -6,7 +6,8 @@
 #include <iomanip>
 #include <iterator>
 #include <functional>
-//TREBUIE CREATA
+#include <fstream> 
+#include <ctime>   
 #include "Utils.h"
 
 class MiddleWare
@@ -68,47 +69,71 @@ public:
             execute_every_particular_MiddleWare_SbS(0, req, res, final_handle_of_the_request);
         }
     }
+    
     void authentication_middleware(Request &req, Response &res, std::function<void()> next)
     {
-        
-        std::string auth_header = req.GetHeader("Authorization");
+    
+    if (req.GetMethod() == "OPTIONS")
+    {
+        res.SetHeader("Access-Control-Allow-Origin", "*");
+        res.SetHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+        res.SetHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+        res.SetStatusCode(200); 
+        res.Send("");           
+        return;
+    }
+    std::string auth_header = req.GetHeader("Authorization");
 
-        if (auth_header.empty())
+    if (auth_header.empty())
+    {
+        res.SetStatusCode(401);
+        res.Send("Missing Authorization Header");
+        return;
+    }
+
+    if (auth_header.find("Basic ") == 0)
+    {
+        std::string encoded = auth_header.substr(6); 
+
+        // Decodificare Base64
+        std::string decoded = base64_decode(encoded);
+
+        // Extrage email și parolă
+        std::string email, password;
+        std::istringstream ss(decoded);
+        std::getline(ss, email, ':');
+        std::getline(ss, password);
+
+        // Verificare email valid
+        if (std::find(vec_of_emails.begin(), vec_of_emails.end(), email) != vec_of_emails.end())
         {
-            res.SetStatusCode(401);
-            res.Send("Missing Authorization Header");
-            return;
-        }
-
-       
-        if (auth_header.find("Basic ") == 0)
-        {
-            std::string encoded = auth_header.substr(6); 
-
-          
-            std::string decoded = base64_decode(encoded);
-
-            
-            std::string email, password;
-            std::istringstream ss(decoded);
-            std::getline(ss, email, ':');
-            std::getline(ss, password);
-
-          
-            if (std::find(vec_of_emails.begin(), vec_of_emails.end(), email) != vec_of_emails.end())
+            // Înregistrare autentificare în fișier
+            std::ofstream log_file("auth_log.txt", std::ios::app); // Deschide fișierul în modul append
+            if (log_file.is_open())
             {
-                next();
+                // Obține timestamp-ul curent
+                std::time_t now = std::time(nullptr);
+                std::string timestamp = std::asctime(std::localtime(&now));
+                timestamp.pop_back(); // Elimină newline-ul generat de asctime
+
+                // Scrie email-ul și timestamp-ul în fișier
+                log_file << "Email: " << email << ", Timestamp: " << timestamp << "\n";
+                log_file.close();
             }
-            else
-            {
-                res.SetStatusCode(401);
-                res.Send("Invalid Email");
-            }
+
+            // Continuă procesarea următoarelor middleware-uri sau endpoint
+            next();
         }
         else
         {
             res.SetStatusCode(401);
-            res.Send("Invalid Authorization Format");
+            res.Send("Invalid Email");
         }
+    }
+    else
+    {
+        res.SetStatusCode(401);
+        res.Send("Invalid Authorization Format");
+    }
     }
 };
