@@ -18,7 +18,14 @@ public:
     bool remove(int id) override ;
     User getById(int id) override; 
     std::vector<User> getAll() override; 
+    bool exists(int id)override;
+    bool exists(const std::string &field, const std::string &value)override;
+    std::vector<User> findByField(const std::string &field, const std::string &value);
+    int count();
+    bool removeAll();
+    std::vector<User> getAllSorted(const std::string &field, bool ascending); 
 
+    
     bool emailExists(const std::string &email);
 };
 

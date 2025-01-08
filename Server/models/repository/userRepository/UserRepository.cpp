@@ -176,5 +176,146 @@ bool UserRepository::emailExists(const std::string &email) {
     bool exists = std::string(PQgetvalue(res, 0, 0)) == "t";
 
     PQclear(res);
+    return !exists;
+}
+
+
+
+bool UserRepository::exists(int id) {
+    std::string query = "SELECT EXISTS(SELECT 1 FROM users WHERE id = $1);";
+    std::vector<const char *> paramValues = {std::to_string(id).c_str()};
+
+    PGresult *res = PQexecParams(
+        database->getConnection(),
+        query.c_str(),
+        paramValues.size(),
+        nullptr,
+        paramValues.data(),
+        nullptr,
+        nullptr,
+        0
+    );
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        PQclear(res);
+        throw std::runtime_error("Failed to check user existence: " + std::string(PQerrorMessage(database->getConnection())));
+    }
+
+    bool exists = std::string(PQgetvalue(res, 0, 0)) == "t";
+    PQclear(res);
     return exists;
+}
+
+bool UserRepository::exists(const std::string &field, const std::string &value) {
+    std::string query = "SELECT EXISTS(SELECT 1 FROM users WHERE " + field + " = $1);";
+    std::vector<const char *> paramValues = {value.c_str()};
+
+    PGresult *res = PQexecParams(
+        database->getConnection(),
+        query.c_str(),
+        paramValues.size(),
+        nullptr,
+        paramValues.data(),
+        nullptr,
+        nullptr,
+        0
+    );
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        PQclear(res);
+        throw std::runtime_error("Failed to check field existence: " + std::string(PQerrorMessage(database->getConnection())));
+    }
+
+    bool exists = std::string(PQgetvalue(res, 0, 0)) == "t";
+    PQclear(res);
+    return exists;
+}
+
+std::vector<User> UserRepository::findByField(const std::string &field, const std::string &value) {
+    std::string query = "SELECT * FROM users WHERE " + field + " = $1;";
+    std::vector<const char *> paramValues = {value.c_str()};
+
+    PGresult *res = PQexecParams(
+        database->getConnection(),
+        query.c_str(),
+        paramValues.size(),
+        nullptr,
+        paramValues.data(),
+        nullptr,
+        nullptr,
+        0
+    );
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        PQclear(res);
+        throw std::runtime_error("Failed to fetch users: " + std::string(PQerrorMessage(database->getConnection())));
+    }
+
+    std::vector<User> users;
+    int nRows = PQntuples(res);
+
+    for (int i = 0; i < nRows; ++i) {
+        users.emplace_back(
+            std::stoi(PQgetvalue(res, i, PQfnumber(res, "id"))),
+            PQgetvalue(res, i, PQfnumber(res, "name")),
+            PQgetvalue(res, i, PQfnumber(res, "email")),
+            PQgetvalue(res, i, PQfnumber(res, "password"))
+        );
+    }
+
+    PQclear(res);
+    return users;
+}
+
+int UserRepository::count() {
+    std::string query = "SELECT COUNT(*) FROM users;";
+    PGresult *res = PQexec(database->getConnection(), query.c_str());
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        PQclear(res);
+        throw std::runtime_error("Failed to count users: " + std::string(PQerrorMessage(database->getConnection())));
+    }
+
+    int count = std::stoi(PQgetvalue(res, 0, 0));
+    PQclear(res);
+    return count;
+}
+
+bool UserRepository::removeAll() {
+    std::string query = "DELETE FROM users;";
+    PGresult *res = PQexec(database->getConnection(), query.c_str());
+
+    if (PQresultStatus(res) != PGRES_COMMAND_OK) {
+        PQclear(res);
+        throw std::runtime_error("Failed to remove all users: " + std::string(PQerrorMessage(database->getConnection())));
+    }
+
+    PQclear(res);
+    return true;
+}
+
+std::vector<User> UserRepository::getAllSorted(const std::string &field, bool ascending) {
+    std::string order = ascending ? "ASC" : "DESC";
+    std::string query = "SELECT * FROM users ORDER BY " + field + " " + order + ";";
+    PGresult *res = PQexec(database->getConnection(), query.c_str());
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        PQclear(res);
+        throw std::runtime_error("Failed to fetch sorted users: " + std::string(PQerrorMessage(database->getConnection())));
+    }
+
+    std::vector<User> users;
+    int nRows = PQntuples(res);
+
+    for (int i = 0; i < nRows; ++i) {
+        users.emplace_back(
+            std::stoi(PQgetvalue(res, i, PQfnumber(res, "id"))),
+            PQgetvalue(res, i, PQfnumber(res, "name")),
+            PQgetvalue(res, i, PQfnumber(res, "email")),
+            PQgetvalue(res, i, PQfnumber(res, "password"))
+        );
+    }
+
+    PQclear(res);
+    return users;
 }

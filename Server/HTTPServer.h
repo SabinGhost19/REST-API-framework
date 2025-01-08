@@ -16,7 +16,9 @@ typedef std::string (*RouteHandler)(const std::string &);
 class RestServer
 {
 public:
+    RestServer(int port, int number_of_threads,const std::string&rootPath);
     RestServer(int port, int number_of_threads);
+
     ~RestServer();
     void addRouter(Router *_router);
     void run();
@@ -24,6 +26,7 @@ public:
     void use(std::string endpoint,MiddleWare::MidW_Handler middleWare_function);
     void setAuthEmails(std::vector<std::string>vec);
     void useSimpleAuthMiddleware(std::string endpoint);
+    void setupProjectStructure(const std::string &rootPath);
     int nr_of_requests = 0;
 
 private:
