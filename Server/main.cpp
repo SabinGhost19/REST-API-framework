@@ -5,6 +5,8 @@
 #include"models/DataBaseFactory.h"
 #include"models/PostgresDB.h"
 #include"repository/userRepository/UserRepository.h"
+#include "bcrypt/bcrypt.h"
+
 
 #define PORT 8082
 
@@ -140,7 +142,32 @@ void functionMiddleWare(Request &req, Response &res, std::function<void()> next)
 
 int main()
 {
-    
+   const char* password = "secret123";  // Parola pe care vrei să o criptezi
+    char salt[BCRYPT_HASHSIZE];  // Buffer pentru salt
+    char hashed_password[BCRYPT_HASHSIZE];  // Buffer suficient de mare pentru a stoca hash-ul bcrypt
+
+    // Generarea unui salt (presupunând că ai funcția bcrypt_gensalt disponibilă)
+    if (bcrypt_gensalt(12, salt) != 0) {  // 12 este costul, poate fi ajustat
+        std::cerr << "Error generating salt." << std::endl;
+        return 1;
+    }
+
+    // Criptarea parolei
+    if (bcrypt_hashpw(password, salt, hashed_password) != 0) {
+        std::cerr << "Error hashing password." << std::endl;
+        return 1;
+    }
+
+    std::cout << "Hashed password: " << hashed_password << std::endl;
+    std::cout << "Salt: " << salt << std::endl;  // Afisarea salt-ului pentru referință
+
+    // Verificarea parolei
+    const char* password_to_check = "secret123";
+    if (bcrypt_checkpw(password_to_check, hashed_password) == 0) {
+        std::cout << "Password is correct!" << std::endl;
+    } else {
+        std::cout << "Password is incorrect!" << std::endl;
+    }
     // httperf:
     // httperf --server localhost --port 8081 --uri /home --num-conns 1500 --rate 50
     //----meaning: 50 pe second
@@ -180,13 +207,12 @@ int main()
     //daca nu satisfac
 
 
-    User new_user=User(2,"sabin","sabinstan19@gmail.com","pass");
+    User new_user= User(2,"florea gaby","floreaflorea@gmail.com","password1234");
 
     try{
         if(repo->add(new_user)){
                 std::cout << "User added to the database!!!" << std::endl;
         }
-        return 0;
     }catch (const std::exception& ex) {
         std::cerr << "Error: " << ex.what() << std::endl;
         return 1;
@@ -202,47 +228,6 @@ int main()
 
         // Deconectarea bazei de date
     std::cout<<"Deconnecting from the DataBase....\n";
-
-
-
-
-
-
-    //DECONECTAREA SE FACE AUTOMATA
-    // LA DESTRUCTOR.... IN REPO care este un UNIQUE_POINTER....
-     //!!!!!!!!!!!!!!!!!!!!!!!!!!!1   
-
-
-
-
-
-//----------------------------------------____??????????????????????????????????
-    //define some query using a string and call de exec function with it 
-//     std::string create_table_query = "CREATE TABLE IF NOT EXISTS test_table (id SERIAL PRIMARY KEY, name VARCHAR(50), age INTEGER);";
-//     if (!db.executeQuery(create_table_query)) {
-//         return 1; 
-//     }
-
-//     std::string insert_query = "INSERT INTO test_table (name, age) VALUES ('John Doe', 30);";
-//     if (!db.executeQuery(insert_query)) {
-//         std::cerr << "Failed to insert data into the table." << std::endl;
-//         return 1; 
-//     } else {
-//         std::cout << "Data inserted successfully." << std::endl;
-//     }
-//    //printing the fetched data for testing
-//     std::vector<std::map<std::string, std::string>> results = db.getQueryResults("SELECT * FROM test_table;");
-//     for (const auto &row : results) {
-//         for (const auto &[column, value] : row) {
-//             std::cout << column << ": " << value << std::endl;
-//         }
-//         std::cout << "-----------------" << std::endl;
-//     }
-
-    // disconnect from the data base
-//------------------------------------______???????????????????????????????????????
-
-
 
 
 
