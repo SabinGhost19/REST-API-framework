@@ -194,23 +194,21 @@ void RegisterHandler(Request &req, Response &res){
         res.Send(json({{"message","Added"}}));
 }
 
-int main()
+int main(int argc,char*argv[])
 {
     // httperf:
     // httperf --server localhost --port 8081 --uri /home --num-conns 1500 --rate 50
     //----meaning: 50 pe second
 
+    
+    //PGconn specify the type of connection to the DataBase
     std::string conn_info = "host=localhost port=5431 dbname=REST_API_FRCPP user=sabin password=155015";
     auto my_data_base=DatabaseFactory::createDatabase(DataBase_Type::Postgres,conn_info);
 
     if(!my_data_base->connect()){
         return 1;
     }
-    //PGconn specify the type of connection to the DataBase
-    //eu pun la dispozitie doar IRepository si DatabaseFactory pentru Postgres si MySQL
-    //este de natura developerului sa iti creez clase concrete precum UserRepository 
-    //si alege sa foloseasca deja metodele din IRepository sau sa implementeze altele
-    //daca nu satisfac
+     
     MyRepos::user_repo = std::make_shared<UserRepository>(std::move(my_data_base));
 
 
@@ -221,6 +219,7 @@ int main()
     //init structure project if you want 
     std::string rootPath="./structure";
     server.setupProjectStructure(rootPath);
+    
     //initialize the router
     Router *router = new Router();
     //adding routes........

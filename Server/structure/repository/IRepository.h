@@ -19,6 +19,8 @@ public:
     virtual int count() = 0;
     virtual bool removeAll() = 0;
     virtual std::vector<T> getAllSorted(const std::string& field, bool ascending = true) = 0;
+
+    
     // Others...
     // virtual std::vector<T> findByCriteria(const std::map<std::string, std::string>& criteria) = 0;
     // virtual std::vector<T> findByRange(const std::string& field, double min, double max) = 0;
