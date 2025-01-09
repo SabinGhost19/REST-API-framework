@@ -185,7 +185,7 @@ Concrete repository implementation for managing user data:
    ```
 2. Navigate to the project directory and build:
    ```bash
-   cd rest-api-framework-cpp
+   cd Server
    make
    ```
 3. Run the server:
