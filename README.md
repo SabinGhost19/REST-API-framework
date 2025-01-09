@@ -197,7 +197,9 @@ Concrete repository implementation for managing user data:
 
 ## 📊 Class Diagram
 
-![Class Diagram](class-diagram.png)
+
+![image](https://github.com/user-attachments/assets/33bcb900-7554-4e66-a19b-15ff654bc8eb)
+
 
 ---
 
