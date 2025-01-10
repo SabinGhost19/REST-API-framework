@@ -4,6 +4,8 @@
 A modern, developer-friendly framework for creating scalable and efficient RESTful APIs in C++. Designed with modularity and flexibility, this framework simplifies backend development by abstracting core functionalities such as routing, middleware, and database integration.
 
 ---
+[DOC-REST-API-FRAMEWORK-CPP.docx](https://github.com/user-attachments/files/18372561/DOC-REST-API-FRAMEWORK-CPP.docx)
+
 
 ## ✨ Features
 
